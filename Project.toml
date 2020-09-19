@@ -1,10 +1,16 @@
 name = "TuringCallbacks"
 uuid = "ea0860ee-d0ef-45ef-82e6-cc37d6be2f9c"
-authors = ["Tor"]
+authors = ["Tor Erlend Fjelde <tor.erlend95@gmail.com> and contributors"]
 version = "0.1.0"
 
-[compat]
-julia = "1.5"
+[deps]
+DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
+OnlineStats = "a15396b6-48d5-5d58-9928-6d29437db91e"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+TensorBoardLogger = "899adc3e-224a-11e9-021f-63837185c80f"
+Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
