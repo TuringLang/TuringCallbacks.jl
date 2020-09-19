@@ -35,6 +35,8 @@ The following snippet demonstrates the usage of `TBCallback` on a simple model.
 This will write a set of statistics at each iteration to an event-file compatible with Tensorboard:
 
 ```julia
+using Turing, TuringCallbacks
+
 @model function demo(x)
     s ~ InverseGamma(2, 3)
     m ~ Normal(0, √s)
@@ -60,6 +62,15 @@ chain = sample(model, alg, num_samples; callback = callback)
 ```
 
 While this is sampling, you can head right over to `localhost:6006` in your web browser and you should be seeing some plots!
+
+![TensorBoard dashboard](assets/tensorboard_demo_initial_screen.png)
+
+In particular, note the "Distributions" tab in the above picture. Clicking this, you should see something similar to:
+
+![TensorBoard dashboard](assets/tensorboard_demo_distributions_screen.png)
+
+Note that the names of the stats following a naming `$variable_name/...` where `$variable_name` refers to name of the variable in the model.
+For more information about what the different stats represent, see [`TBCallback`](@ref).
 
 ## Types & Functions
 
