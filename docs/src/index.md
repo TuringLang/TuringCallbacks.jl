@@ -18,7 +18,7 @@ pkg> add https://github.com/torfjelde/TuringCallbacks.jl
 ```
 
 ## Visualizing sampling on-the-fly
-`TBCallback` is a wrapper around `TensorBoardLogger.TBLogger` which can be used to create a `callback` compatible with `Turing.sample`.
+`TensorBoardCallback` is a wrapper around `TensorBoardLogger.TBLogger` which can be used to create a `callback` compatible with `Turing.sample`.
 
 To actually visualize the results of the logging, you need to have installed `tensorflow`. If you do not have `tensorflow` installed,
 it should hopefully be sufficient to run
@@ -31,7 +31,7 @@ python3 -m tensorboard.main --logdir tensorboard_logs/run
 ```
 Now we're ready to actually write some Julia code.
 
-The following snippet demonstrates the usage of `TBCallback` on a simple model. 
+The following snippet demonstrates the usage of `TensorBoardCallback` on a simple model. 
 This will write a set of statistics at each iteration to an event-file compatible with Tensorboard:
 
 ```julia
@@ -55,7 +55,7 @@ num_samples = 50_000
 alg = NUTS(0.65)
 
 # Create the callback
-callback = make_callback(TBCallback("tensorboard_logs/run"), alg, num_samples)
+callback = TensorBoardCallback("tensorboard_logs/run", num_samples)
 
 # Sample
 chain = sample(model, alg, num_samples; callback = callback)
@@ -74,7 +74,7 @@ And finally, the "Histogram" tab shows a slighly more visually pleasing version 
 ![TensorBoard dashboard](assets/tensorboard_demo_histograms_screen.png)
 
 Note that the names of the stats following a naming `$variable_name/...` where `$variable_name` refers to name of the variable in the model.
-For more information about what the different stats represent, see [`TBCallback`](@ref).
+For more information about what the different stats represent, see [`TensorBoardCallback`](@ref).
 
 ## Types & Functions
 

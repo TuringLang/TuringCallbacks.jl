@@ -1,6 +1,6 @@
 module TuringCallbacks
 
-export make_callback, TBCallback
+export make_callback, TensorBoardCallback
 
 using Turing
 using TensorBoardLogger, Logging
@@ -53,11 +53,11 @@ function TensorBoardLogger.log_histogram(
 end
 
 ####################
-### `TBCallback` ###
+### `TensorBoardCallback` ###
 ####################
 """
-    TBCallback(directory::String)
-    TBCallback(logger::TBLogger)
+    TensorBoardCallback(directory::String)
+    TensorBoardCallback(logger::TBLogger)
 
 Wraps a `TensorBoardLogger.TBLogger` to construct a callback to be passed to
 `Turing.sample`.
@@ -69,96 +69,104 @@ TODO: add some information about the stats logged.
 # Fields
 $(TYPEDFIELDS)
 """
-struct TBCallback
+struct TensorBoardCallback{T1, T2}
+    "Underlying logger."
     logger::TBLogger
+    "Total number of MCMC steps that will be taken."
+    num_samples::Int
+    "Number of bins to use in the histogram."
+    num_bins::Int
+    "Size of the window to compute stats for."
+    window::Int
+    "Number of bins to use in the histogram of the small window."
+    window_num_bins::Int
+    estimators::T1
+    buffers::T2
 end
 
-function TBCallback(directory::String)
+function TensorBoardCallback(directory::String, args...; kwargs...)
     # Set up the logger
     lg = TBLogger(directory, min_level=Logging.Info; step_increment=0)
 
-    return TBCallback(lg)
+    return TensorBoardCallback(lg, args...; kwargs...)
 end
 
-make_estimator(cb::TBCallback, num_bins::Int) = OnlineStats.Series(
-    Mean(),     # Online estimator for the mean
-    Variance(), # Online estimator for the variance
-    KHist(num_bins)  # Online estimator of a histogram with `100` bins
-)
-make_buffer(cb::TBCallback, window::Int) = MovingWindow(Float64, window)
-
-"""
-    make_callback(cb::TBCallback, spl::InferenceAlgorithm, num_samples::Int; kwargs...)
-
-Returns a function which can be used as a callback in `Turing.sample`.
-
-# Keyword arguments
-- `num_bins::Int = 100`: number of bins to use in the histogram.
-- `window::Int = min(num_samples, 1_000)`: size of the window to compute stats for.
-- `window_num_bins::Int = 50`: number of bins to use in the histogram of the small window.
-"""
-function make_callback(
-    cb::TBCallback,
-    spl::Turing.InferenceAlgorithm, # used to extract sampler-specific parameters in the future
+function TensorBoardCallback(
+    lg::TBLogger,
     num_samples::Int;
     num_bins::Int = 100,
     window::Int = min(num_samples, 1_000),
     window_num_bins::Int = 50
-)
-    lg = cb.logger
-
+)    
     # Lookups
-    estimators = Dict{String, typeof(make_estimator(cb, num_bins))}()
-    buffers = Dict{String, typeof(make_buffer(cb, window))}()
+    estimators = Dict{String, typeof(make_estimator(TensorBoardCallback, num_bins))}()
+    buffers = Dict{String, typeof(make_buffer(TensorBoardCallback, window))}()
+    
+    return TensorBoardCallback(
+        lg, num_samples, num_bins, window, window_num_bins, estimators, buffers
+    )
+end
 
-    return function callback(rng, model, sampler, transition, iteration)
-        with_logger(lg) do
-            for (vals, ks) in values(transition.θ)
-                for (k, val) in zip(ks, vals)
-                    if !haskey(estimators, k)
-                        estimators[k] = make_estimator(cb, num_bins)
-                    end
-                    stat = estimators[k]
+make_estimator(cb::TensorBoardCallback) = make_estimator(typeof(cb), cb.num_bins)
+make_estimator(cb::Type{<:TensorBoardCallback}, num_bins::Int) = OnlineStats.Series(
+    Mean(),     # Online estimator for the mean
+    Variance(), # Online estimator for the variance
+    KHist(num_bins)  # Online estimator of a histogram with `100` bins
+)
+make_buffer(cb::TensorBoardCallback) = make_buffer(typeof(cb), cb.window)
+make_buffer(cb::Type{<:TensorBoardCallback}, window::Int) = MovingWindow(Float64, window)
 
-                    if !haskey(buffers, k)
-                        buffers[k] = make_buffer(cb, window)
-                    end
-                    buffer = buffers[k]
-                    
-                    # Log the raw value
-                    @info k val
+function (cb::TensorBoardCallback)(rng, model, sampler, transition, iteration)
+    estimators = cb.estimators
+    buffers = cb.buffers
+    lg = cb.logger
+    
+    with_logger(lg) do
+        for (vals, ks) in values(transition.θ)
+            for (k, val) in zip(ks, vals)
+                if !haskey(estimators, k)
+                    estimators[k] = make_estimator(cb)
+                end
+                stat = estimators[k]
 
-                    # Update buffer and estimator
-                    fit!(buffer, val)
-                    fit!(stat, val)
-                    mean, variance, hist = stat.stats
+                if !haskey(buffers, k)
+                    buffers[k] = make_buffer(cb)
+                end
+                buffer = buffers[k]
+                
+                # Log the raw value
+                @info k val
 
-                    # Need some iterations before we start showing the stats
-                    if iteration > 10
-                        hist_window = fit!(KHist(window_num_bins), value(buffer))
+                # Update buffer and estimator
+                fit!(buffer, val)
+                fit!(stat, val)
+                mean, variance, hist = stat.stats
 
-                        @info "$k" stat
-                        @info "$k/stat/" hist_window
+                # Need some iterations before we start showing the stats
+                if iteration > 10
+                    hist_window = fit!(KHist(cb.window_num_bins), value(buffer))
 
-                        # Because the `Distribution` and `Histogram` functionality in
-                        # TB is quite crude, we additionally log "later" values to provide
-                        # a slightly more useful view of the later samples in the chain.
-                        # TODO: make this, say, 25% of the total number of iterations
-                        if iteration > 0.25 * num_samples
-                            @info "$k/late" stat
-                            @info "$k/late/state/" hist_window
-                        end
+                    @info "$k" stat
+                    @info "$k/stat" hist_window
+
+                    # Because the `Distribution` and `Histogram` functionality in
+                    # TB is quite crude, we additionally log "later" values to provide
+                    # a slightly more useful view of the later samples in the chain.
+                    # TODO: make this, say, 25% of the total number of iterations
+                    if iteration > 0.25 * cb.num_samples
+                        @info "$k/late" stat
+                        @info "$k/late/stat" hist_window
                     end
                 end
             end
-
-            # Transition statstics
-            names, vals = Turing.Inference.get_transition_extras([transition])
-            for (name, val) in zip(string.(names), vec(vals))
-                @info ("extras/" * name) val
-            end
-            @info "" log_step_increment=1
         end
+
+        # Transition statstics
+        names, vals = Turing.Inference.get_transition_extras([transition])
+        for (name, val) in zip(string.(names), vec(vals))
+            @info ("extras/" * name) val
+        end
+        @info "" log_step_increment=1
     end
 end
 
