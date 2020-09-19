@@ -6,3 +6,5 @@
 [![Coverage](https://codecov.io/gh/torfjelde/TuringCallbacks.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/torfjelde/TuringCallbacks.jl)
 
 A package containing some convenient callbacks to use when you `sample` in [`Turing.jl`](https://codecov.io/gh/TuringLang/Turing.jl).
+
+See the dev-docs for more information.
