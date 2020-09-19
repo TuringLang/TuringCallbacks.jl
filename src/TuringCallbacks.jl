@@ -198,10 +198,13 @@ function make_callback(
                     end
                 end
             end
-            # Increment the step
-            @info "log joint prob" DynamicPPL.getlogp(transition) log_step_increment=1
 
-            # TODO: log additional sampler stats, e.g. rejection rate, numerical_errors
+            # Transition statstics
+            names, vals = Turing.Inference.get_transition_extras([transition])
+            for (name, val) in zip(string.(names), vec(vals))
+                @info ("extras/" * name) val
+            end
+            @info "" log_step_increment=1
         end
     end
 end
