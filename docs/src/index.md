@@ -17,7 +17,7 @@ julia> ]
 pkg> add https://github.com/torfjelde/TuringCallbacks.jl
 ```
 
-## `TBCallback`: Visualizing sampling on-the-fly
+## Visualizing sampling on-the-fly
 `TBCallback` is a wrapper around `TensorBoardLogger.TBLogger` which can be used to create a `callback` compatible with `Turing.sample`.
 
 To actually visualize the results of the logging, you need to have installed `tensorflow`. If you do not have `tensorflow` installed,
