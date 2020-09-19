@@ -69,6 +69,10 @@ In particular, note the "Distributions" tab in the above picture. Clicking this,
 
 ![TensorBoard dashboard](assets/tensorboard_demo_distributions_screen.png)
 
+And finally, the "Histogram" tab shows a slighly more visually pleasing version of the marginal distributions:
+
+![TensorBoard dashboard](assets/tensorboard_demo_histograms_screen.png)
+
 Note that the names of the stats following a naming `$variable_name/...` where `$variable_name` refers to name of the variable in the model.
 For more information about what the different stats represent, see [`TBCallback`](@ref).
 
