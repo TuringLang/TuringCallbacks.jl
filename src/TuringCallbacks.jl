@@ -89,8 +89,8 @@ provided instead of `lg`.
 - `window_num_bins::Int = 50`: Number of bins to use in the histogram of the small window.
 - `stats = nothing`: Lookup for variable name to statistic estimator. 
   If `isnothing`, then a `DefaultDict` with a default constructor returning a
-  `OnlineStats.Series` estimator with `OnlineStats.Mean`, `OnlineStats.Variance`, and
-  `OnlineStats.KHist` will be used.
+  `OnlineStats.Series` estimator with `OnlineStats.Mean()`, `OnlineStats.Variance()`, and
+  `OnlineStats.KHist(num_bins)` will be used.
 - `buffers = nothing`: Lookup for variable name to window buffers. 
   If `isnothing`, then a `OnlineStats.MovingWindow(Float64, window)` will be used.
 - `variable_filter = nothing`: Filter determining whether or not we should log stats for a 
