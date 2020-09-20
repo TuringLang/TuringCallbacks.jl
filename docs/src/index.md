@@ -76,6 +76,29 @@ And finally, the "Histogram" tab shows a slighly more visually pleasing version 
 Note that the names of the stats following a naming `$variable_name/...` where `$variable_name` refers to name of the variable in the model.
 For more information about what the different stats represent, see [`TensorBoardCallback`](@ref).
 
+### Choosing what and how you log
+#### Statistics
+If you want to log some other statistics, you can manually create the `DataStructures.DefaultDict` which maps a variable name to the corresponding statistic estimator:
+```
+# Let's instead look at the auto-correlation and the histogram:
+using TuringCallbacks.OnlineStats
+
+make_stats() = Series(AutoCov(10), KHist(10)) # constructor for new entries in the dictionary
+stats = DefaultDict{String, Any}(make_stats)
+callback = TensorBoardCallback("tensorboard_logs/run", num_samples; stats = stats)
+```
+
+#### Filter variables to log
+Maybe you want to only log stats for certain variables, e.g. in the above example we might want to exclude `m` *and* exclude the sampler statistics:
+```julia
+callback = TensorBoardCallback("tensorboard_logs/run", num_samples; stats = stats, exclude = ["m", ], include_extras = false)
+```
+Or you can create the filter (a mapping `variable_name -> ::Bool` yourself:
+```julia
+var_filter(varname) = varname != "m"
+callback = TensorBoardCallback("tensorboard_logs/run", num_samples; stats = stats, variable_filter = var_filter)
+```
+
 ## Types & Functions
 
 ```@autodocs

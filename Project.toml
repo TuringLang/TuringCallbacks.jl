@@ -4,6 +4,7 @@ authors = ["Tor Erlend Fjelde <tor.erlend95@gmail.com> and contributors"]
 version = "0.1.0"
 
 [deps]
+DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
@@ -13,11 +14,12 @@ TensorBoardLogger = "899adc3e-224a-11e9-021f-63837185c80f"
 Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0"
 
 [compat]
-Turing = "0.14"
+DataStructures = "0.18"
+DocStringExtensions = "0.8"
 OnlineStats = "1.5"
 StatsBase = "0.33"
-DocStringExtensions = "0.8"
 TensorBoardLogger = "0.1"
+Turing = "0.14"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

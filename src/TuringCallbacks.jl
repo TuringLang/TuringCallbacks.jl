@@ -1,22 +1,33 @@
 module TuringCallbacks
 
-export make_callback, TensorBoardCallback
-
 using Turing
 using TensorBoardLogger, Logging
 using OnlineStats      # used to compute different statistics on-the-fly
+import OnlineStats
 using StatsBase        # Provides us with the `Histogram` which is supported by `TensorBoardLogger.jl`
 using LinearAlgebra
+using DataStructures
+import DataStructures: DefaultDict
 
 using DocStringExtensions
 
 const TBL = TensorBoardLogger
 
+export TensorBoardCallback, DefaultDict, OnlineStats
+
 #########################################
 ### Overloads for `TensorBoardLogger` ###
 #########################################
-function TensorBoardLogger.preprocess(name, stat::OnlineStat, data)
+function TensorBoardLogger.preprocess(name, stat::OnlineStats.OnlineStat, data)
     return TensorBoardLogger.preprocess(name, value(stat), data)
+end
+
+function TensorBoardLogger.preprocess(name, stat::OnlineStats.AutoCov, data)
+    autocor = OnlineStats.autocor(stat)
+    for b = 1:(stat.lag.b - 1)
+        # `autocor[i]` corresponds to the lag of size `i - 1` and `autocor[1] = 1.0`
+        TensorBoardLogger.preprocess(name * "/corr/" * "lag-$b", autocor[b + 1], data)
+    end
 end
 
 function TensorBoardLogger.preprocess(name, stat::OnlineStats.Series, data)
@@ -27,7 +38,7 @@ function TensorBoardLogger.preprocess(name, stat::OnlineStats.Series, data)
     end
 end
 
-function TensorBoardLogger.preprocess(name, hist::KHist, data)
+function TensorBoardLogger.preprocess(name, hist::OnlineStats.KHist, data)
     # Creates a NORMALIZED histogram
     edges = OnlineStats.edges(hist)
     cnts = OnlineStats.counts(hist)
@@ -69,7 +80,7 @@ TODO: add some information about the stats logged.
 # Fields
 $(TYPEDFIELDS)
 """
-struct TensorBoardCallback{T1, T2}
+struct TensorBoardCallback{F, T1, T2}
     "Underlying logger."
     logger::TBLogger
     "Total number of MCMC steps that will be taken."
@@ -80,12 +91,12 @@ struct TensorBoardCallback{T1, T2}
     window::Int
     "Number of bins to use in the histogram of the small window."
     window_num_bins::Int
-    "If non-empty, statistics for only these variables will be logged."
-    exclude::Vector{Symbol}
+    "Filter determining whether or not we should log stats for a particular variable."
+    variable_filter::F
     "Include extra statistics from transitions."
     include_extras::Bool
     "Lookup for variable name to statistic estimate."
-    estimators::T1
+    stats::T1
     "Lookup for variable name to window buffers."
     buffers::T2
 end
@@ -103,49 +114,66 @@ function TensorBoardCallback(
     num_bins::Int = 100,
     window::Int = min(num_samples, 1_000),
     window_num_bins::Int = 50,
-    exclude = Symbol[],
-    include_extras::Bool = true
-)    
-    # Lookups
-    estimators = Dict{String, typeof(make_estimator(TensorBoardCallback, num_bins))}()
-    buffers = Dict{String, typeof(make_buffer(TensorBoardCallback, window))}()
+    stats = nothing,
+    buffers = nothing,
+    exclude = String[],
+    include = String[],
+    include_extras::Bool = true,
+    variable_filter = nothing
+)
+    # Create the filter
+    filter = if !isnothing(variable_filter)
+        variable_filter
+    else
+        varname -> (
+            (isempty(exclude) || varname ∉ exclude) &&
+            (isempty(include) || varnmae ∈ include)
+        )
+    end
+    
+    # Lookups: create default ones if not given
+    stats = if !isnothing(stats)
+        stats
+    else
+        make_estimator() = OnlineStats.Series(
+            OnlineStats.Mean(),     # Online estimator for the mean
+            OnlineStats.Variance(), # Online estimator for the variance
+            OnlineStats.KHist(num_bins)  # Online estimator of a histogram with `100` bins
+        )
+        DefaultDict{String, typeof(make_estimator())}(make_estimator)
+    end
+
+    buffers = if !isnothing(buffers)
+        buffers
+    else
+        make_buffer() = MovingWindow(Float64, window)
+        DefaultDict{String, typeof(make_buffer())}(make_buffer)
+    end
     
     return TensorBoardCallback(
         lg, num_samples, num_bins, window, window_num_bins,
-        exclude, include_extras, estimators, buffers
+        filter, include_extras, stats, buffers
     )
 end
 
-make_estimator(cb::TensorBoardCallback) = make_estimator(typeof(cb), cb.num_bins)
-make_estimator(cb::Type{<:TensorBoardCallback}, num_bins::Int) = OnlineStats.Series(
-    Mean(),     # Online estimator for the mean
-    Variance(), # Online estimator for the variance
-    KHist(num_bins)  # Online estimator of a histogram with `100` bins
-)
-make_buffer(cb::TensorBoardCallback) = make_buffer(typeof(cb), cb.window)
-make_buffer(cb::Type{<:TensorBoardCallback}, window::Int) = MovingWindow(Float64, window)
-
 function (cb::TensorBoardCallback)(rng, model, sampler, transition, iteration)
-    estimators = cb.estimators
+    stats = cb.stats
     buffers = cb.buffers
     lg = cb.logger
+    filter = cb.variable_filter
     
     with_logger(lg) do
         for (varname, (vals, ks)) in pairs(transition.θ)
             # Skip those variables which are to be excluded
-            if varname ∈ cb.exclude
+            if !filter(string(varname))
                 continue
             end
             
             for (k, val) in zip(ks, vals)
-                if !haskey(estimators, k)
-                    estimators[k] = make_estimator(cb)
+                if !filter(k)
+                    continue
                 end
-                stat = estimators[k]
-
-                if !haskey(buffers, k)
-                    buffers[k] = make_buffer(cb)
-                end
+                stat = stats[k]
                 buffer = buffers[k]
                 
                 # Log the raw value
@@ -154,10 +182,11 @@ function (cb::TensorBoardCallback)(rng, model, sampler, transition, iteration)
                 # Update buffer and estimator
                 fit!(buffer, val)
                 fit!(stat, val)
-                mean, variance, hist = stat.stats
 
                 # Need some iterations before we start showing the stats
                 if iteration > 10
+                    # TODO: generalize this "windowed" statistic stuff too.
+                    # Ideally implement some form of "forgetting" `OnlineStats.OnlineStat`.
                     hist_window = fit!(KHist(cb.window_num_bins), value(buffer))
 
                     @info "$k" stat
