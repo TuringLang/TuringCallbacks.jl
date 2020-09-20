@@ -88,6 +88,8 @@ stats = DefaultDict{String, Any}(make_stats)
 callback = TensorBoardCallback("tensorboard_logs/run", num_samples; stats = stats)
 ```
 
+Note that at the moment the only support statistics are sub-types of `OnlineStats.OnlineStat`. If you want to log some custom statistic, again, at the moment, you have to make a sub-type and implement `OnlineStats.fit!` and `OnlineStats.value`. By default, a `OnlineStat` is passed to `tensorboard` by simply calling `OnlineStat.value(stat)`. Therefore, if you also want to customize how a stat is passed to `tensorbard`, you need to overload `TensorBoardLogger.preprocess(name, stat, data)` accordingly.
+
 #### Filter variables to log
 Maybe you want to only log stats for certain variables, e.g. in the above example we might want to exclude `m` *and* exclude the sampler statistics:
 ```julia
