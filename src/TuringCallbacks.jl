@@ -80,7 +80,13 @@ struct TensorBoardCallback{T1, T2}
     window::Int
     "Number of bins to use in the histogram of the small window."
     window_num_bins::Int
+    "If non-empty, statistics for only these variables will be logged."
+    exclude::Vector{Symbol}
+    "Include extra statistics from transitions."
+    include_extras::Bool
+    "Lookup for variable name to statistic estimate."
     estimators::T1
+    "Lookup for variable name to window buffers."
     buffers::T2
 end
 
@@ -96,14 +102,17 @@ function TensorBoardCallback(
     num_samples::Int;
     num_bins::Int = 100,
     window::Int = min(num_samples, 1_000),
-    window_num_bins::Int = 50
+    window_num_bins::Int = 50,
+    exclude = Symbol[],
+    include_extras::Bool = true
 )    
     # Lookups
     estimators = Dict{String, typeof(make_estimator(TensorBoardCallback, num_bins))}()
     buffers = Dict{String, typeof(make_buffer(TensorBoardCallback, window))}()
     
     return TensorBoardCallback(
-        lg, num_samples, num_bins, window, window_num_bins, estimators, buffers
+        lg, num_samples, num_bins, window, window_num_bins,
+        exclude, include_extras, estimators, buffers
     )
 end
 
@@ -122,7 +131,12 @@ function (cb::TensorBoardCallback)(rng, model, sampler, transition, iteration)
     lg = cb.logger
     
     with_logger(lg) do
-        for (vals, ks) in values(transition.θ)
+        for (varname, (vals, ks)) in pairs(transition.θ)
+            # Skip those variables which are to be excluded
+            if varname ∈ cb.exclude
+                continue
+            end
+            
             for (k, val) in zip(ks, vals)
                 if !haskey(estimators, k)
                     estimators[k] = make_estimator(cb)
@@ -162,9 +176,11 @@ function (cb::TensorBoardCallback)(rng, model, sampler, transition, iteration)
         end
 
         # Transition statstics
-        names, vals = Turing.Inference.get_transition_extras([transition])
-        for (name, val) in zip(string.(names), vec(vals))
-            @info ("extras/" * name) val
+        if cb.include_extras
+            names, vals = Turing.Inference.get_transition_extras([transition])
+            for (name, val) in zip(string.(names), vec(vals))
+                @info ("extras/" * name) val
+            end
         end
         @info "" log_step_increment=1
     end
