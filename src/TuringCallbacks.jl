@@ -67,15 +67,39 @@ end
 ### `TensorBoardCallback` ###
 ####################
 """
-    TensorBoardCallback(directory::String)
-    TensorBoardCallback(logger::TBLogger)
+    $(TYPEDEF)
 
 Wraps a `TensorBoardLogger.TBLogger` to construct a callback to be passed to
 `Turing.sample`.
 
-See also [`make_callback`](@ref).
+# Usage
 
-TODO: add some information about the stats logged.
+    TensorBoardCallback(lg::TBLogger, num_samples::Int; kwargs...)
+    TensorBoardCallback(directory::String, num_samples::Int; kwargs...)
+
+Constructs an instance of a `TensorBoardCallback`, creating a `TBLogger` if `directory` is 
+provided instead of `lg`.
+
+## Arguments
+- `num_samples::Int`: Total number of MCMC steps that will be taken.
+
+## Keyword arguments
+- `num_bins::Int = 100`: Number of bins to use in the histograms.
+- `window::Int = min(num_samples, 1_000)`: Size of the window to compute stats for.
+- `window_num_bins::Int = 50`: Number of bins to use in the histogram of the small window.
+- `stats = nothing`: Lookup for variable name to statistic estimator. 
+  If `isnothing`, then a `DefaultDict` with a default constructor returning a
+  `OnlineStats.Series` estimator with `OnlineStats.Mean`, `OnlineStats.Variance`, and
+  `OnlineStats.KHist` will be used.
+- `buffers = nothing`: Lookup for variable name to window buffers. 
+  If `isnothing`, then a `OnlineStats.MovingWindow(Float64, window)` will be used.
+- `variable_filter = nothing`: Filter determining whether or not we should log stats for a 
+  particular variable. 
+  If `isnothing` a default-filter constructed from `exclude` and 
+  `include` will be used.
+- `exclude = String[]`: If non-empty, these variables will not be logged.
+- `include = String[]`: If non-empty, only these variables will be logged.
+- `include_extras::Bool = true`: Include extra statistics from transitions.
 
 # Fields
 $(TYPEDFIELDS)
