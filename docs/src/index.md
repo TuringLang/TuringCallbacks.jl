@@ -78,9 +78,10 @@ And finally, the "Histogram" tab shows a slighly more visually pleasing version 
 ![TensorBoard dashboard](assets/tensorboard_demo_histograms_screen.png)
 
 Note that the names of the stats following a naming `$variable_name/...` where `$variable_name` refers to name of the variable in the model.
-For more information about what the different stats represent, see [`TensorBoardCallback`](@ref).
 
-But the above uses the default statistics which are a couple very simple ones, e.g. `Mean` and `Variance`. The following demonstrates a more complex example:
+### Choosing what and how you log
+#### Statistics
+In the above example we didn't provide any statistics explicit and so it used the default statistics, e.g. `Mean` and `Variance`. But using other statistics is easy! Here's a much more interesting example:
 ```julia
 # Create the stats (estimators are sub-types of `OnlineStats.OnlineStat`)
 stats = Skip(
@@ -101,25 +102,7 @@ callback = TensorBoardCallback("tensorboard_logs/run", num_samples, stats)
 chain = sample(model, alg, num_samples; callback = callback)
 ```
 
-Tada! Now you should be seeing waaaay more interesting statistics in your TensorBoard dashboard.
-
-### Choosing what and how you log
-#### Statistics
-Most sub-types of `OnlineStat` just work! In addition, we've added some wrappers around `OnlineStat` that are useful when working with MCMC chains, e.g. [`Thin`](@ref) which only updates the underlying `OnlineStat` every b-th step. Here is a more complex example of `make_stats`:
-```julia
-stats = Skip(
-    100, # Consider the first 100 steps as warmp-up and just skip them
-    Series(
-        # Estimators using the entire chain
-        Series(Mean(), Variance(), AutoCov(10), KHist(100)),
-        # Estimators using the entire chain but only every 10-th sample
-        Thin(10, Series(Mean(), Variance(), AutoCov(10), KHist(100))),
-        # Estimators using only the last 1000 samples
-        WindowStat(1000, Series(Mean(), Variance(), AutoCov(10), KHist(100)))
-    )
-)
-callback = TensorBoardCallback("tensorboard_logs/run", num_samples, stats)
-```
+Tada! Now you should be seeing waaaay more interesting statistics in your TensorBoard dashboard. See the [`OnlineStats.jl` documentation](https://joshday.github.io/OnlineStats.jl/latest/) for more on the different statistics, with the exception of [`Thin`](@ref), [`Skip`](@ref) and [`WindowStat`](@ref) which are implemented in this package.
 
 Note that these statistic estimators are stateful, and therefore the following is *bad*:
 
