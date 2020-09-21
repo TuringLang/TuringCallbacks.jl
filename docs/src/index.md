@@ -35,7 +35,7 @@ The following snippet demonstrates the usage of `TensorBoardCallback` on a simpl
 This will write a set of statistics at each iteration to an event-file compatible with Tensorboard:
 
 ```julia
-using Turing, TuringCallbacks
+using Revise, Turing, TuringCallbacks
 
 @model function demo(x)
     s ~ InverseGamma(2, 3)
@@ -49,7 +49,7 @@ xs = randn(100) .+ 1;
 model = demo(xs);
 
 # Number of MCMC samples/steps
-num_samples = 50_000
+num_samples = 10_000
 
 # Sampling algorithm to use
 alg = NUTS(0.65)
@@ -79,13 +79,26 @@ For more information about what the different stats represent, see [`TensorBoard
 ### Choosing what and how you log
 #### Statistics
 If you want to log some other statistics, you can manually create the `DataStructures.DefaultDict` which maps a variable name to the corresponding statistic estimator:
-```
+```julia
 # Let's instead look at the auto-correlation and the histogram:
-using TuringCallbacks.OnlineStats
-
-make_stats() = Series(AutoCov(10), KHist(10)) # constructor for new entries in the dictionary
+make_stats() = Series(AutoCov(10), KHist(10)) # constructor for new entries in the dict
 stats = DefaultDict{String, Any}(make_stats)
 callback = TensorBoardCallback("tensorboard_logs/run", num_samples; stats = stats)
+```
+
+Most sub-types of `OnlineStat` just work! In addition, we've added some wrappers around `OnlineStat` that are useful when working with MCMC chains, e.g. [`Thin`](@ref) which only updates the underlying `OnlineStat` every b-th step. Here is a more complex example of `make_stats`:
+```julia
+make_stats() = Skip(
+    100, # Consider the first 100 steps as warmp-up and just skip them
+    Series(
+        # Estimators using the entire chain
+        Mean(), Variance(), KHist(100)
+        # Estimators using the entire chain but only every 10-th sample
+        Thin(10, Series(Mean(), Variance(), KHist(100)))
+        # Estimators using only the last 1000 samples
+        WindowStat(1000, Series(Mean(), Variance(), KHist(100)))
+    )
+)
 ```
 
 Note that at the moment the only support statistics are sub-types of `OnlineStats.OnlineStat`. If you want to log some custom statistic, again, at the moment, you have to make a sub-type and implement `OnlineStats.fit!` and `OnlineStats.value`. By default, a `OnlineStat` is passed to `tensorboard` by simply calling `OnlineStat.value(stat)`. Therefore, if you also want to customize how a stat is passed to `tensorbard`, you need to overload `TensorBoardLogger.preprocess(name, stat, data)` accordingly.
