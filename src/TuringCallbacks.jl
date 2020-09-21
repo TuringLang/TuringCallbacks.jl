@@ -11,7 +11,6 @@ import Turing
 using TensorBoardLogger
 const TBL = TensorBoardLogger
 
-import StatsBase   # Contains `Histogram` which is supported by `TensorBoardLogger.jl`
 import DataStructures: DefaultDict
 
 export TensorBoardCallback, DefaultDict, WindowStat, Thin, Skip
