@@ -5,6 +5,10 @@ DocTestSetup  = quote
 end
 ```
 
+```@setup setup
+using TuringCallbacks
+```
+
 # TuringCallbacks
 
 ```@contents
@@ -119,15 +123,16 @@ callback = TensorBoardCallback("tensorboard_logs/run", num_samples, stats)
 
 Note that these statistic estimators are stateful, and therefore the following is *bad*:
 
-```@repl
+```@repl setup
 s = AutoCov(5)
 stat = Series(s, s)
 # => 10 samples but `n=20` since we've called `fit!` twice for each observation
 fit!(stat, randn(10))
 ```
 while the following is *good*:
-```@repl
+```@repl setup
 stat = Series(AutoCov(5), AutoCov(5))
+# => 10 samples AND `n=10`; great!
 fit!(stat, randn(10))
 ```
 

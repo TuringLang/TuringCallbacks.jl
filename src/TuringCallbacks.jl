@@ -5,7 +5,7 @@ using Reexport
 using LinearAlgebra
 using Logging
 using DocStringExtensions
-using Turing
+import Turing
 @reexport using OnlineStats # used to compute different statistics on-the-fly
 
 using TensorBoardLogger
