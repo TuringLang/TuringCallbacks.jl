@@ -11,10 +11,10 @@ If `length(args) > 1`, `args` are joined together by `"/"`.
 """
 tb_name(arg) = string(arg)
 tb_name(stat::OnlineStat) = string(nameof(typeof(stat)))
-tb_name(o::Skip) = "Skip(b=$(o.b))"
-tb_name(o::Thin) = "Thin(b=$(o.b))"
-tb_name(o::WindowStat) = "WindowStat(b=$(o.window.b))"
-tb_name(o::AutoCov, b::Int) = "AutoCov(b=$b)/corr"
+tb_name(o::Skip) = "Skip($(o.b))"
+tb_name(o::Thin) = "Thin($(o.b))"
+tb_name(o::WindowStat) = "WindowStat($(o.window.b))"
+tb_name(o::AutoCov, b::Int) = "AutoCov(lag=$b)/corr"
 
 # Recursive impl
 tb_name(s1::String, s2::String) = s1 * "/" * s2

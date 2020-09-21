@@ -35,7 +35,7 @@ The following snippet demonstrates the usage of `TensorBoardCallback` on a simpl
 This will write a set of statistics at each iteration to an event-file compatible with Tensorboard:
 
 ```julia
-using Revise, Turing, TuringCallbacks
+using Turing, TuringCallbacks
 
 @model function demo(x)
     s ~ InverseGamma(2, 3)
@@ -76,32 +76,62 @@ And finally, the "Histogram" tab shows a slighly more visually pleasing version 
 Note that the names of the stats following a naming `$variable_name/...` where `$variable_name` refers to name of the variable in the model.
 For more information about what the different stats represent, see [`TensorBoardCallback`](@ref).
 
-### Choosing what and how you log
-#### Statistics
-If you want to log some other statistics, you can manually create the `DataStructures.DefaultDict` which maps a variable name to the corresponding statistic estimator:
+But the above uses the default statistics which are a couple very simple ones, e.g. `Mean` and `Variance`. The following demonstrates a more complex example:
 ```julia
-# Let's instead look at the auto-correlation and the histogram:
-make_stats() = Series(AutoCov(10), KHist(10)) # constructor for new entries in the dict
-stats = DefaultDict{String, Any}(make_stats)
-callback = TensorBoardCallback("tensorboard_logs/run", num_samples; stats = stats)
+# Create the stats (estimators are sub-types of `OnlineStats.OnlineStat`)
+stats = Skip(
+    100, # Consider the first 100 steps as warm-up so we skip them
+    Series(
+        # Estimators using the entire chain
+        Series(Mean(), Variance(), AutoCov(10), KHist(100)),
+        # Estimators using the entire chain but only every 10-th sample
+        Thin(10, Series(Mean(), Variance(), AutoCov(10), KHist(100))),
+        # Estimators using only the last 1000 samples
+        WindowStat(1000, Series(Mean(), Variance(), AutoCov(10), KHist(100)))
+    )
+)
+# Create the callback
+callback = TensorBoardCallback("tensorboard_logs/run", num_samples, stats)
+
+# Sample
+chain = sample(model, alg, num_samples; callback = callback)
 ```
 
+Tada! Now you should be seeing waaaay more interesting statistics in your TensorBoard dashboard.
+
+### Choosing what and how you log
+#### Statistics
 Most sub-types of `OnlineStat` just work! In addition, we've added some wrappers around `OnlineStat` that are useful when working with MCMC chains, e.g. [`Thin`](@ref) which only updates the underlying `OnlineStat` every b-th step. Here is a more complex example of `make_stats`:
 ```julia
-make_stats() = Skip(
+stats = Skip(
     100, # Consider the first 100 steps as warmp-up and just skip them
     Series(
         # Estimators using the entire chain
-        Mean(), Variance(), KHist(100)
+        Series(Mean(), Variance(), AutoCov(10), KHist(100)),
         # Estimators using the entire chain but only every 10-th sample
-        Thin(10, Series(Mean(), Variance(), KHist(100)))
+        Thin(10, Series(Mean(), Variance(), AutoCov(10), KHist(100))),
         # Estimators using only the last 1000 samples
-        WindowStat(1000, Series(Mean(), Variance(), KHist(100)))
+        WindowStat(1000, Series(Mean(), Variance(), AutoCov(10), KHist(100)))
     )
 )
+callback = TensorBoardCallback("tensorboard_logs/run", num_samples, stats)
 ```
 
-Note that at the moment the only support statistics are sub-types of `OnlineStats.OnlineStat`. If you want to log some custom statistic, again, at the moment, you have to make a sub-type and implement `OnlineStats.fit!` and `OnlineStats.value`. By default, a `OnlineStat` is passed to `tensorboard` by simply calling `OnlineStat.value(stat)`. Therefore, if you also want to customize how a stat is passed to `tensorbard`, you need to overload `TensorBoardLogger.preprocess(name, stat, data)` accordingly.
+Note that these statistic estimators are stateful, and therefore the following is *bad*:
+
+```@repl
+s = AutoCov(5)
+stat = Series(s, s)
+# => 10 samples but `n=20` since we've called `fit!` twice for each observation
+fit!(stat, randn(10))
+```
+while the following is *good*:
+```@repl
+stat = Series(AutoCov(5), AutoCov(5))
+fit!(stat, randn(10))
+```
+
+Since at the moment the only support statistics are sub-types of `OnlineStats.OnlineStat`. If you want to log some custom statistic, again, at the moment, you have to make a sub-type and implement `OnlineStats.fit!` and `OnlineStats.value`. By default, a `OnlineStat` is passed to `tensorboard` by simply calling `OnlineStat.value(stat)`. Therefore, if you also want to customize how a stat is passed to `tensorbord`, you need to overload `TensorBoardLogger.preprocess(name, stat, data)` accordingly.
 
 #### Filter variables to log
 Maybe you want to only log stats for certain variables, e.g. in the above example we might want to exclude `m` *and* exclude the sampler statistics:

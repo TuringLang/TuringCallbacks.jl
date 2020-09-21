@@ -9,25 +9,23 @@ Wraps a `TensorBoardLogger.TBLogger` to construct a callback to be passed to
 
 # Usage
 
-    TensorBoardCallback(lg::TBLogger, num_samples::Int; kwargs...)
-    TensorBoardCallback(directory::String, num_samples::Int; kwargs...)
+    TensorBoardCallback(lg::TBLogger, num_samples::Int, stats = nothing; kwargs...)
+    TensorBoardCallback(directory::String, num_samples::Int, stats = nothing; kwargs...)
 
 Constructs an instance of a `TensorBoardCallback`, creating a `TBLogger` if `directory` is 
 provided instead of `lg`.
 
 ## Arguments
 - `num_samples::Int`: Total number of MCMC steps that will be taken.
+- `stats = nothing`: `OnlineStat` or lookup for variable name to statistic estimator.
+  If `stats isa OnlineStat`, we will create a `DefaultDict` which copies `stats` for unseen
+  variable names.
+  If `isnothing`, then a `DefaultDict` with a default constructor returning a
+  `OnlineStats.Series` estimator with `Mean()`, `Variance()`, and `KHist(num_bins)`
+  will be used.
 
 ## Keyword arguments
 - `num_bins::Int = 100`: Number of bins to use in the histograms.
-- `window::Int = min(num_samples, 1_000)`: Size of the window to compute stats for.
-- `window_num_bins::Int = 50`: Number of bins to use in the histogram of the small window.
-- `stats = nothing`: Lookup for variable name to statistic estimator. 
-  If `isnothing`, then a `DefaultDict` with a default constructor returning a
-  `OnlineStats.Series` estimator with `OnlineStats.Mean()`, `OnlineStats.Variance()`, and
-  `OnlineStats.KHist(num_bins)` will be used.
-- `buffers = nothing`: Lookup for variable name to window buffers. 
-  If `isnothing`, then a `OnlineStats.MovingWindow(Float64, window)` will be used.
 - `variable_filter = nothing`: Filter determining whether or not we should log stats for a 
   particular variable. 
   If `isnothing` a default-filter constructed from `exclude` and 
@@ -39,25 +37,17 @@ provided instead of `lg`.
 # Fields
 $(TYPEDFIELDS)
 """
-struct TensorBoardCallback{F, T1, T2}
+struct TensorBoardCallback{F, L}
     "Underlying logger."
     logger::TBLogger
     "Total number of MCMC steps that will be taken."
     num_samples::Int
-    "Number of bins to use in the histogram."
-    num_bins::Int
-    "Size of the window to compute stats for."
-    window::Int
-    "Number of bins to use in the histogram of the small window."
-    window_num_bins::Int
     "Filter determining whether or not we should log stats for a particular variable."
     variable_filter::F
     "Include extra statistics from transitions."
     include_extras::Bool
     "Lookup for variable name to statistic estimate."
-    stats::T1
-    "Lookup for variable name to window buffers."
-    buffers::T2
+    stats::L
 end
 
 function TensorBoardCallback(directory::String, args...; kwargs...)
@@ -69,12 +59,9 @@ end
 
 function TensorBoardCallback(
     lg::TBLogger,
-    num_samples::Int;
+    num_samples::Int,
+    stats = nothing;
     num_bins::Int = 100,
-    window::Int = min(num_samples, 1_000),
-    window_num_bins::Int = 50,
-    stats = nothing,
-    buffers = nothing,
     exclude = String[],
     include = String[],
     include_extras::Bool = true,
@@ -91,33 +78,29 @@ function TensorBoardCallback(
     end
     
     # Lookups: create default ones if not given
-    stats = if !isnothing(stats)
+    stats_lookup = if stats isa OnlineStat
+        # Warn the user if they've provided a non-empty `OnlineStat`
+        nobs(stats) > 0 && @warn("using statistic with observations as a base: $(stats)")
+        let o = stats
+            DefaultDict{String, typeof(o)}(() -> deepcopy(o))
+        end
+    elseif !isnothing(stats)
+        # If it's not an `OnlineStat` nor `nothing`, assume user knows what they're doing
         stats
     else
-        make_estimator() = OnlineStats.Series(
-            OnlineStats.Mean(),     # Online estimator for the mean
-            OnlineStats.Variance(), # Online estimator for the variance
-            OnlineStats.KHist(num_bins)  # Online estimator of a histogram with `100` bins
-        )
-        DefaultDict{String, typeof(make_estimator())}(make_estimator)
+        # This is default
+        let o = OnlineStats.Series(Mean(), Variance(), KHist(num_bins))
+            DefaultDict{String, typeof(o)}(() -> deepcopy(o))
+        end
     end
 
-    buffers = if !isnothing(buffers)
-        buffers
-    else
-        make_buffer() = MovingWindow(Float64, window)
-        DefaultDict{String, typeof(make_buffer())}(make_buffer)
-    end
-    
     return TensorBoardCallback(
-        lg, num_samples, num_bins, window, window_num_bins,
-        filter, include_extras, stats, buffers
+        lg, num_samples, filter, include_extras, stats_lookup
     )
 end
 
 function (cb::TensorBoardCallback)(rng, model, sampler, transition, iteration)
     stats = cb.stats
-    buffers = cb.buffers
     lg = cb.logger
     filter = cb.variable_filter
     
@@ -133,27 +116,15 @@ function (cb::TensorBoardCallback)(rng, model, sampler, transition, iteration)
                     continue
                 end
                 stat = stats[k]
-                buffer = buffers[k]
                 
                 # Log the raw value
                 @info k val
 
-                # Update buffer and estimator
-                fit!(buffer, val)
+                # Update statistic estimators
                 fit!(stat, val)
 
                 # Need some iterations before we start showing the stats
-                if iteration > 1
-                    @info "$k" stat
-
-                    # Because the `Distribution` and `Histogram` functionality in
-                    # TB is quite crude, we additionally log "later" values to provide
-                    # a slightly more useful view of the later samples in the chain.
-                    # TODO: make this, say, 25% of the total number of iterations
-                    if iteration > 0.25 * cb.num_samples
-                        @info "$k/late" stat
-                    end
-                end
+                @info k stat
             end
         end
 
