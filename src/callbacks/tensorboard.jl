@@ -40,8 +40,6 @@ $(TYPEDFIELDS)
 struct TensorBoardCallback{F, L}
     "Underlying logger."
     logger::TBLogger
-    "Total number of MCMC steps that will be taken."
-    num_samples::Int
     "Filter determining whether or not we should log stats for a particular variable."
     variable_filter::F
     "Include extra statistics from transitions."
@@ -59,7 +57,6 @@ end
 
 function TensorBoardCallback(
     lg::TBLogger,
-    num_samples::Int,
     stats = nothing;
     num_bins::Int = 100,
     exclude = String[],
@@ -95,7 +92,7 @@ function TensorBoardCallback(
     end
 
     return TensorBoardCallback(
-        lg, num_samples, filter, include_extras, stats_lookup
+        lg, filter, include_extras, stats_lookup
     )
 end
 
