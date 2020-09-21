@@ -61,7 +61,7 @@ function TBL.preprocess(name, hist::KHist, data)
         edges = OnlineStats.edges(hist)
         cnts = OnlineStats.counts(hist)
         TBL.preprocess(
-            name, StatsBase.Histogram(edges, cnts ./ sum(cnts), :left, true), data
+            name, (edges, cnts ./ sum(cnts)), data
         )
     end
 end
@@ -73,11 +73,9 @@ function TBL.log_histogram(
 )
     edges = edges(hist)
     cnts = Float64.(OnlineStats.counts(hist))
-    hist = if normalize
-        StatsBase.Histogram(edges, cnts ./ sum(cnts), :left, true)
+    if normalize
+        return TBL.log_histogram(logger, name, (edges, cnts ./ sum(cnts)); step=step)
     else
-        StatsBase.Histogram(edges, cnts, :left, false)
+        return TBL.log_histogram(logger, name, (edges, cnts); step=step)
     end
-    summ = TBL.SummaryCollection(TBL.histogram_summary(name, hist))
-    TBL.write_event(logger.file, TBL.make_event(logger, summ, step=step))
 end
