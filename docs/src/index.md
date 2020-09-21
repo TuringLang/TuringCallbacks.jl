@@ -125,16 +125,16 @@ Since at the moment the only support statistics are sub-types of `OnlineStats.On
 Maybe you want to only log stats for certain variables, e.g. in the above example we might want to exclude `m` *and* exclude the sampler statistics:
 ```julia
 callback = TensorBoardCallback(
-    "tensorboard_logs/run", num_samples;
-    stats = stats, exclude = ["m", ], include_extras = false
+    "tensorboard_logs/run", num_samples, stats;
+    exclude = ["m", ], include_extras = false
 )
 ```
 Or you can create the filter (a mapping `variable_name -> ::Bool` yourself:
 ```julia
 var_filter(varname) = varname != "m"
 callback = TensorBoardCallback(
-    "tensorboard_logs/run", num_samples;
-    stats = stats, variable_filter = var_filter
+    "tensorboard_logs/run", num_samples, stats;
+    variable_filter = var_filter
 )
 ```
 
