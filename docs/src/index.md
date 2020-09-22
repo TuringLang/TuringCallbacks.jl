@@ -54,9 +54,10 @@ model = demo(xs);
 
 # Number of MCMC samples/steps
 num_samples = 10_000
+num_adapts = 100
 
 # Sampling algorithm to use
-alg = NUTS(0.65)
+alg = NUTS(num_adapts, 0.65)
 
 # Create the callback
 callback = TensorBoardCallback("tensorboard_logs/run")
@@ -85,7 +86,7 @@ In the above example we didn't provide any statistics explicit and so it used th
 ```julia
 # Create the stats (estimators are sub-types of `OnlineStats.OnlineStat`)
 stats = Skip(
-    100, # Consider the first 100 steps as warm-up so we skip them
+    num_adapts, # Consider adaptation steps
     Series(
         # Estimators using the entire chain
         Series(Mean(), Variance(), AutoCov(10), KHist(100)),
