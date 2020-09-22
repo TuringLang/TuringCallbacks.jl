@@ -102,27 +102,21 @@ function (cb::TensorBoardCallback)(rng, model, sampler, transition, iteration)
     filter = cb.variable_filter
     
     with_logger(lg) do
-        for (varname, (vals, ks)) in pairs(transition.θ)
-            # Skip those variables which are to be excluded
-            if !filter(string(varname))
+        for (ksym, val) in zip(Turing.Inference._params_to_array([transition])...)
+            k = string(ksym)
+            if !filter(k)
                 continue
             end
+            stat = stats[k]
             
-            for (k, val) in zip(ks, vals)
-                if !filter(k)
-                    continue
-                end
-                stat = stats[k]
-                
-                # Log the raw value
-                @info k val
+            # Log the raw value
+            @info k val
 
-                # Update statistic estimators
-                fit!(stat, val)
+            # Update statistic estimators
+            fit!(stat, val)
 
-                # Need some iterations before we start showing the stats
-                @info k stat
-            end
+            # Need some iterations before we start showing the stats
+            @info k stat
         end
 
         # Transition statstics
