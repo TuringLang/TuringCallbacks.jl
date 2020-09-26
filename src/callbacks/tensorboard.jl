@@ -1,6 +1,5 @@
-#############################
-### `TensorBoardCallback` ###
-#############################
+using Dates
+
 """
     $(TYPEDEF)
 
@@ -48,9 +47,15 @@ struct TensorBoardCallback{F, L}
     stats::L
 end
 
-function TensorBoardCallback(directory::String, args...; kwargs...)
+function TensorBoardCallback(args...; comment = "", directory = nothing, kwargs...)
+    log_dir = if isnothing(directory)
+        "runs/$(Dates.format(now(), dateformat"Y-m-d_H-M-S"))-$(gethostname())$(comment)"
+    else
+        directory
+    end
+    
     # Set up the logger
-    lg = TBLogger(directory, min_level=Logging.Info; step_increment=0)
+    lg = TBLogger(log_dir, min_level=Logging.Info; step_increment=0)
 
     return TensorBoardCallback(lg, args...; kwargs...)
 end
