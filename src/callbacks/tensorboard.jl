@@ -70,7 +70,7 @@ function TensorBoardCallback(
     else
         varname -> (
             (isempty(exclude) || varname ∉ exclude) &&
-            (isempty(include) || varnmae ∈ include)
+            (isempty(include) || varname ∈ include)
         )
     end
     
