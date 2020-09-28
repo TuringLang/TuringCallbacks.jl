@@ -21,18 +21,23 @@ julia> ]
 pkg> add https://github.com/torfjelde/TuringCallbacks.jl
 ```
 
+You will need an installation of `tensorboard` in Python (which **does not** require tensorflow to be installed).
+
+Given a typical installation from Anaconda or others, you can run
+```sh
+pip install tensorboard
+```
+(where on your system, you may have replaced `pip` with `pip3` and `python` with `python3`)
+
 ## Visualizing sampling on-the-fly
 `TensorBoardCallback` is a wrapper around `TensorBoardLogger.TBLogger` which can be used to create a `callback` compatible with `Turing.sample`.
 
-To actually visualize the results of the logging, you need to have installed `tensorboad` in Python. If you do not have `tensorboard` installed,
-it should hopefully be sufficient to just run
+To actually visualize the results of the logging, you need to have installed
+Then you can start up the `tensorBoard` in the default log directory as
 ```sh
-pip3 install tensorboard
+tensorboard --logdir runs
 ```
-Then you can start up the `TensorBoard`:
-```sh
-python3 -m tensorboard.main --logdir tensorboard_logs/run
-```
+(or, on some platforms, `python -m tensorboard.main --logdir runs`)
 Now we're ready to actually write some Julia code.
 
 The following snippet demonstrates the usage of `TensorBoardCallback` on a simple model. 
@@ -60,7 +65,7 @@ num_adapts = 100
 alg = NUTS(num_adapts, 0.65)
 
 # Create the callback
-callback = TensorBoardCallback("tensorboard_logs/run")
+callback = TensorBoardCallback()  # by default, logs to `./runs/`
 
 # Sample
 chain = sample(model, alg, num_samples; callback = callback)
@@ -80,8 +85,17 @@ And finally, the "Histogram" tab shows a slighly more visually pleasing version 
 
 Note that the names of the stats following a naming `$variable_name/...` where `$variable_name` refers to name of the variable in the model.
 
+In addition, you can use the `comment` argument to log 
+```julia
+callback = TensorBoardCallback(;comment = " num_adapts $(num_adapts)")  # added to file/directory name
+chain = sample(model, alg, num_samples; callback = callback)
+```
+
 ### Choosing what and how you log
 #### Statistics
+
+To log to a particular directory, you can pass in the string, for example `TensorBoardCallback("tensorboard_logs/run")` logs to that sub-directory rather than `runs`.
+
 In the above example we didn't provide any statistics explicit and so it used the default statistics, e.g. `Mean` and `Variance`. But using other statistics is easy! Here's a much more interesting example:
 ```julia
 # Create the stats (estimators are sub-types of `OnlineStats.OnlineStat`)
