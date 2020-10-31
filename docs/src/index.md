@@ -24,7 +24,7 @@ pkg> add https://github.com/torfjelde/TuringCallbacks.jl
 ## Visualizing sampling on-the-fly
 `TensorBoardCallback` is a wrapper around `TensorBoardLogger.TBLogger` which can be used to create a `callback` compatible with `Turing.sample`.
 
-To actually visualize the results of the logging, you need to have installed `tensorboad` in Python. If you do not have `tensorboard` installed,
+To actually visualize the results of the logging, you need to have installed `tensorboard` in Python. If you do not have `tensorboard` installed,
 it should hopefully be sufficient to just run
 ```sh
 pip3 install tensorboard
