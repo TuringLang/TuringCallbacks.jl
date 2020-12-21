@@ -36,7 +36,7 @@ provided instead of `lg`.
 # Fields
 $(TYPEDFIELDS)
 """
-struct TensorBoardCallback{F, L}
+struct TensorBoardCallback{F, L} <: TuringCallback
     "Underlying logger."
     logger::TBLogger
     "Filter determining whether or not we should log stats for a particular variable."
