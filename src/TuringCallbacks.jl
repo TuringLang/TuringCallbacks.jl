@@ -14,11 +14,14 @@ const TBL = TensorBoardLogger
 import DataStructures: DefaultDict
 
 export TensorBoardCallback, DefaultDict, WindowStat, Thin, Skip
+export MakieCallBack
 
 abstract type TuringCallback end
 
 include("stats.jl")
 include("tensorboardlogger.jl")
-include("callbacks/tensorboard.jl")
+include("online_stats_plots.jl")
+include(joinpath("callbacks", "tensorboard.jl"))
+include(joinpath("callbacks", "abstractplotting.jl"))
 
 end
