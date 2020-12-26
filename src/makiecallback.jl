@@ -1,3 +1,13 @@
+using .AbstractPlotting: Scene, Point2f0
+using .AbstractPlotting: barplot!, lines!, scatter! # Plotting tools
+using .AbstractPlotting: Observable, Node, lift, on # Observable tools
+using .AbstractPlotting: recordframe! # Recording tools
+using .AbstractPlotting.MakieLayout # Layouting tool
+using Colors, ColorSchemes # Colors tools
+using KernelDensity # To be able to give a KDE
+
+include(joinpath("callbacks", "abstractplotting.jl"))
+
 function onlineplot!(scene, layout, axis_dict, stats::Series, iter, data, variable, i)
     for (j, stat) in enumerate(stats.stats)
         axis_dict[(variable, stat)] = layout[i, j] = LAxis(scene, title = "$(name(stat))")
