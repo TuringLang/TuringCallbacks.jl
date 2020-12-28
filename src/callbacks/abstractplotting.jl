@@ -47,8 +47,8 @@ struct MakieCallback <: TuringCallback
     iter::Observable{Int64}
 end
 
-function MakieCallback(model::Model, plots::Union{Series, AbstractVector} = [:histkde, Mean(), Variance(), AutoCov(20)]; kwargs...)
-    variables = VarInfo(model).metadata
+function MakieCallback(model::DynamicPPL.Model, plots::Union{Series, AbstractVector} = [:histkde, Mean(), Variance(), AutoCov(20)]; kwargs...)
+    variables = DynamicPPL.VarInfo(model).metadata
     return MakieCallback(Dict(Pair.(keys(variables), Ref(plots))),
     Dict(kwargs...))
 end

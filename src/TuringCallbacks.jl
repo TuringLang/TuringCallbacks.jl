@@ -7,6 +7,7 @@ using LinearAlgebra
 using Logging
 using DocStringExtensions
 import Turing
+import DynamicPPL
 @reexport using OnlineStats # used to compute different statistics on-the-fly
 
 using TensorBoardLogger

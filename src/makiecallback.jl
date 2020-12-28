@@ -8,6 +8,11 @@ using KernelDensity # To be able to give a KDE
 
 include(joinpath("callbacks", "abstractplotting.jl"))
 
+const std_colors = ColorSchemes.seaborn_colorblind
+
+name(s::Symbol) = string(s)
+name(s::OnlineStat) = nameof(typeof(s))
+
 function onlineplot!(scene, layout, axis_dict, stats::Series, iter, data, variable, i)
     for (j, stat) in enumerate(stats.stats)
         axis_dict[(variable, stat)] = layout[i, j] = LAxis(scene, title = "$(name(stat))")
