@@ -8,14 +8,14 @@ Wraps a `TensorBoardLogger.TBLogger` to construct a callback to be passed to
 
 # Usage
 
-    TensorBoardCallback(lg::TBLogger, num_samples::Int, stats = nothing; kwargs...)
-    TensorBoardCallback(directory::String, num_samples::Int, stats = nothing; kwargs...)
+    TensorBoardCallback(; kwargs...)
+    TensorBoardCallback(directory::string[, stats]; kwargs...)
+    TensorBoardCallback(lg::TBLogger[, stats]; kwargs...)
 
 Constructs an instance of a `TensorBoardCallback`, creating a `TBLogger` if `directory` is 
 provided instead of `lg`.
 
 ## Arguments
-- `num_samples::Int`: Total number of MCMC steps that will be taken.
 - `stats = nothing`: `OnlineStat` or lookup for variable name to statistic estimator.
   If `stats isa OnlineStat`, we will create a `DefaultDict` which copies `stats` for unseen
   variable names.
@@ -32,6 +32,10 @@ provided instead of `lg`.
 - `exclude = String[]`: If non-empty, these variables will not be logged.
 - `include = String[]`: If non-empty, only these variables will be logged.
 - `include_extras::Bool = true`: Include extra statistics from transitions.
+- `directory::String = nothing`: if specified, will together with `comment` be used to
+   define the logging directory.
+- `comment::String = nothing`: if specified, will together with `directory` be used to
+   define the logging directory.
 
 # Fields
 $(TYPEDFIELDS)
@@ -45,6 +49,10 @@ struct TensorBoardCallback{F, L}
     include_extras::Bool
     "Lookup for variable name to statistic estimate."
     stats::L
+end
+
+function TensorBoardCallback(directory::String, args...; kwargs...)
+    TensorBoardCallback(args...; directory = directory, kwargs...)
 end
 
 function TensorBoardCallback(args...; comment = "", directory = nothing, kwargs...)
