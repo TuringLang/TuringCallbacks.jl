@@ -109,7 +109,7 @@ function TensorBoardCallback(
     )
 end
 
-function (cb::TensorBoardCallback)(rng, model, sampler, transition, iteration)
+function (cb::TensorBoardCallback)(rng, model, sampler, transition, iteration; kwargs...)
     stats = cb.stats
     lg = cb.logger
     filter = cb.variable_filter
