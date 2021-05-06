@@ -75,7 +75,8 @@ function TensorBoardCallback(
     exclude = String[],
     include = String[],
     include_extras::Bool = true,
-    variable_filter = nothing
+    variable_filter = nothing,
+    kwargs...
 )
     # Create the filter
     filter = if !isnothing(variable_filter)
@@ -109,7 +110,7 @@ function TensorBoardCallback(
     )
 end
 
-function (cb::TensorBoardCallback)(rng, model, sampler, transition, iteration)
+function (cb::TensorBoardCallback)(rng, model, sampler, transition, iteration, state; kwargs...)
     stats = cb.stats
     lg = cb.logger
     filter = cb.variable_filter
