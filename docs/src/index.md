@@ -16,9 +16,9 @@ using TuringCallbacks
 
 ## Getting started
 As the package is not yet officially released, the package has to be added from the GitHub repository:
-```@example
+```julia
 julia> ]
-pkg> add https://github.com/torfjelde/TuringCallbacks.jl
+pkg> add TuringCallbacks.jl
 ```
 
 ## Visualizing sampling on-the-fly
