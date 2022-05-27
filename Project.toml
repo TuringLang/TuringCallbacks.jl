@@ -16,7 +16,7 @@ Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0"
 
 [compat]
 DataStructures = "0.18"
-DocStringExtensions = "0.8"
+DocStringExtensions = "0.8, 0.9"
 OnlineStats = "1.5"
 Reexport = "0.2, 1.0"
 TensorBoardLogger = "0.1"
