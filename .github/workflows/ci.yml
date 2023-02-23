@@ -22,7 +22,9 @@ jobs:
           - x64
         exclude:
           - version: 'nightly'
-            os: macOS-latest
+            os:
+              - macOS-latest
+              - windows-latest
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
