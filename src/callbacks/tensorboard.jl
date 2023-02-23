@@ -134,7 +134,7 @@ default_param_names_for_values(x) = ("θ[$i]" for i = 1:length(x))
 
 Return an iterator over parameter names and values from a `transition`.
 """
-params_and_values(transition, state; kwargs...) = params_and_values(state; kwargs...)
+params_and_values(transition, state; kwargs...) = params_and_values(transition; kwargs...)
 
 """
     extras(transition[, state]; kwargs...)
@@ -143,7 +143,7 @@ Return an iterator with elements of the form `(name, value)` for additional stat
 """
 extras(transition, state; kwargs...) = extras(transition; kwargs...)
 
-function (cb::TensorBoardCallback)(rng, model, sampler, transition, iteration, state; param_names=nothing, kwargs...)
+function (cb::TensorBoardCallback)(rng, model, sampler, transition, state, iteration; param_names=nothing, kwargs...)
     stats = cb.stats
     lg = cb.logger
     filterf = Base.Fix1(filter_param_and_value, cb)
