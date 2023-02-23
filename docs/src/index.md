@@ -132,10 +132,10 @@ callback = TensorBoardCallback(
 ```
 Or you can create the filter (a mapping `variable_name -> ::Bool` yourself:
 ```julia
-var_filter(varname) = varname != "m"
+var_filter(varname, value1) = varname != "m"
 callback = TensorBoardCallback(
     "tensorboard_logs/run", stats;
-    variable_filter = var_filter
+    filter = var_filter
 )
 ```
 

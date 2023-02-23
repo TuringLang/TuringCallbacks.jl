@@ -1,7 +1,7 @@
 name = "TuringCallbacks"
 uuid = "ea0860ee-d0ef-45ef-82e6-cc37d6be2f9c"
 authors = ["Tor Erlend Fjelde <tor.erlend95@gmail.com> and contributors"]
-version = "0.1.9"
+version = "0.2.0"
 
 [deps]
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
@@ -11,20 +11,24 @@ LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 OnlineStats = "a15396b6-48d5-5d58-9928-6d29437db91e"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
+Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 TensorBoardLogger = "899adc3e-224a-11e9-021f-63837185c80f"
+
+[weakdeps]
 Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0"
+
+[extensions]
+TuringCallbacksTuringExt = "Turing"
 
 [compat]
 DataStructures = "0.18"
 DocStringExtensions = "0.8, 0.9"
 OnlineStats = "1.5"
 Reexport = "0.2, 1.0"
+Requires = "1"
 TensorBoardLogger = "0.1"
 Turing = "0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.20, 0.21, 0.22"
 julia = "1"
 
 [extras]
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[targets]
-test = ["Test"]
+Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0"
