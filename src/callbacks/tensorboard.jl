@@ -150,7 +150,7 @@ function (cb::TensorBoardCallback)(rng, model, sampler, transition, iteration, s
 
     # TODO: Should we use the explicit interface for TensorBoardLogger?
     with_logger(lg) do
-        for (k, val) in Iterators.filter(filterf, params_and_values(transition; param_names))
+        for (k, val) in Iterators.filter(filterf, params_and_values(transition, state; param_names))
             stat = stats[k]
 
             # Log the raw value
@@ -165,7 +165,7 @@ function (cb::TensorBoardCallback)(rng, model, sampler, transition, iteration, s
 
         # Transition statstics
         if cb.include_extras
-            for (name, val) in extras(transition; param_names)
+            for (name, val) in extras(transition, state; param_names)
                 @info ("extras/" * name) val
             end
         end
