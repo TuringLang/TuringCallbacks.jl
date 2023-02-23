@@ -22,7 +22,7 @@ tb_name(arg1, arg2) = tb_name(arg1) * "/" * tb_name(arg2)
 tb_name(arg, args...) = tb_name(arg) * "/" * tb_name(args...)
 
 function TBL.preprocess(name, stat::OnlineStat, data)
-    if nobs(stat) > 0
+    if OnlineStats.nobs(stat) > 0
         TBL.preprocess(tb_name(name, stat), value(stat), data)
     end
 end
@@ -56,7 +56,7 @@ function TBL.preprocess(name, stat::Series, data)
 end
 
 function TBL.preprocess(name, hist::KHist, data)
-    if nobs(hist) > 0
+    if OnlineStats.nobs(hist) > 0
         # Creates a NORMALIZED histogram
         edges = OnlineStats.edges(hist)
         cnts = OnlineStats.counts(hist)

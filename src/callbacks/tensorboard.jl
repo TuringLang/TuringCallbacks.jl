@@ -3,8 +3,7 @@ using Dates
 """
     $(TYPEDEF)
 
-Wraps a `TensorBoardLogger.TBLogger` to construct a callback to be passed to
-`Turing.sample`.
+Wraps a `TensorBoardLogger.TBLogger` to construct a callback to be passed to `AbstractMCMC.step`.
 
 # Usage
 
@@ -25,8 +24,8 @@ provided instead of `lg`.
 
 ## Keyword arguments
 - `num_bins::Int = 100`: Number of bins to use in the histograms.
-- `variable_filter = nothing`: Filter determining whether or not we should log stats for a 
-  particular variable. 
+- `filter = nothing`: Filter determining whether or not we should log stats for a 
+  particular variable and value; expected signature is `filter(varname, value)`.
   If `isnothing` a default-filter constructed from `exclude` and 
   `include` will be used.
 - `exclude = String[]`: If non-empty, these variables will not be logged.
@@ -40,15 +39,19 @@ provided instead of `lg`.
 # Fields
 $(TYPEDFIELDS)
 """
-struct TensorBoardCallback{F, L}
+struct TensorBoardCallback{L,F,VI,VE}
     "Underlying logger."
     logger::TBLogger
-    "Filter determining whether or not we should log stats for a particular variable."
-    variable_filter::F
-    "Include extra statistics from transitions."
-    include_extras::Bool
     "Lookup for variable name to statistic estimate."
     stats::L
+    "Filter determining whether or not we should log stats for a particular variable."
+    filter::F
+    "Variables to include in the logging."
+    include::VI
+    "Variables to exclude from the logging."
+    exclude::VE
+    "Include extra statistics from transitions."
+    include_extras::Bool
 end
 
 function TensorBoardCallback(directory::String, args...; kwargs...)
@@ -72,26 +75,16 @@ function TensorBoardCallback(
     lg::TBLogger,
     stats = nothing;
     num_bins::Int = 100,
-    exclude = String[],
-    include = String[],
+    exclude = nothing,
+    include = nothing,
     include_extras::Bool = true,
-    variable_filter = nothing,
+    filter = nothing,
     kwargs...
 )
-    # Create the filter
-    filter = if !isnothing(variable_filter)
-        variable_filter
-    else
-        varname -> (
-            (isempty(exclude) || varname ∉ exclude) &&
-            (isempty(include) || varname ∈ include)
-        )
-    end
-    
     # Lookups: create default ones if not given
     stats_lookup = if stats isa OnlineStat
         # Warn the user if they've provided a non-empty `OnlineStat`
-        nobs(stats) > 0 && @warn("using statistic with observations as a base: $(stats)")
+        OnlineStats.nobs(stats) > 0 && @warn("using statistic with observations as a base: $(stats)")
         let o = stats
             DefaultDict{String, typeof(o)}(() -> deepcopy(o))
         end
@@ -106,28 +99,65 @@ function TensorBoardCallback(
     end
 
     return TensorBoardCallback(
-        lg, filter, include_extras, stats_lookup
+        lg, stats_lookup, filter, include, exclude, include_extras
     )
 end
 
-function (cb::TensorBoardCallback)(rng, model, sampler, transition, iteration, state; kwargs...)
+"""
+    filter_param_and_value(cb::TensorBoardCallback, param_name, value)
+
+Filter parameters and values from a `transition` based on the `filter` of `cb`.
+"""
+function filter_param_and_value(cb::TensorBoardCallback, param, value)
+    if !isnothing(cb.filter)
+        return cb.filter(param, value)
+    end
+
+    # Othnerwise we construct from `include` and `exclude`.
+    !isnothing(cb.exclude) && param ∈ cb.exclude && return false
+    !isnothing(cb.include) && param ∈ cb.include && return true
+
+    return true
+end
+filter_param_and_value(cb::TensorBoardCallback, param_and_value::Tuple) = filter_param_and_value(cb, param_and_value...)
+
+"""
+    default_param_names_for_values(x)
+
+Return an iterator of `θ[i]` for each element in `x`.
+"""
+default_param_names_for_values(x) = ("θ[$i]" for i = 1:length(x))
+
+
+"""
+    params_and_values(transition[, state]; param_names = nothing)
+
+Return an iterator over parameter names and values from a `transition`.
+"""
+params_and_values(transition, state; kwargs...) = params_and_values(state; kwargs...)
+
+"""
+    extras(transition[, state]; kwargs...)
+
+Return an iterator with elements of the form `(name, value)` for additional statistics in `transition`.
+"""
+extras(transition, state; kwargs...) = extras(transition; kwargs...)
+
+function (cb::TensorBoardCallback)(rng, model, sampler, transition, iteration, state; param_names=nothing, kwargs...)
     stats = cb.stats
     lg = cb.logger
-    filter = cb.variable_filter
-    
+    filterf = Base.Fix1(filter_param_and_value, cb)
+
+    # TODO: Should we use the explicit interface for TensorBoardLogger?
     with_logger(lg) do
-        for (ksym, val) in zip(Turing.Inference._params_to_array([transition])...)
-            k = string(ksym)
-            if !filter(k)
-                continue
-            end
+        for (k, val) in Iterators.filter(filterf, params_and_values(transition; param_names))
             stat = stats[k]
-            
+
             # Log the raw value
             @info k val
 
             # Update statistic estimators
-            fit!(stat, val)
+            OnlineStats.fit!(stat, val)
 
             # Need some iterations before we start showing the stats
             @info k stat
@@ -135,8 +165,7 @@ function (cb::TensorBoardCallback)(rng, model, sampler, transition, iteration, s
 
         # Transition statstics
         if cb.include_extras
-            names, vals = Turing.Inference.get_transition_extras([transition])
-            for (name, val) in zip(string.(names), vec(vals))
+            for (name, val) in extras(transition; param_names)
                 @info ("extras/" * name) val
             end
         end
