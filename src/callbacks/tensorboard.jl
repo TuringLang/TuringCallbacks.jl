@@ -28,8 +28,8 @@ provided instead of `lg`.
   particular variable and value; expected signature is `filter(varname, value)`.
   If `isnothing` a default-filter constructed from `exclude` and 
   `include` will be used.
-- `exclude = String[]`: If non-empty, these variables will not be logged.
-- `include = String[]`: If non-empty, only these variables will be logged.
+- `exclude = nothing`: If non-empty, these variables will not be logged.
+- `include = nothing`: If non-empty, only these variables will be logged.
 - `include_extras::Bool = true`: Include extra statistics from transitions.
 - `directory::String = nothing`: if specified, will together with `comment` be used to
    define the logging directory.
@@ -113,10 +113,20 @@ function filter_param_and_value(cb::TensorBoardCallback, param, value)
         return cb.filter(param, value)
     end
 
-    # Othnerwise we construct from `include` and `exclude`.
-    !isnothing(cb.exclude) && param ∈ cb.exclude && return false
-    !isnothing(cb.include) && param ∈ cb.include && return true
+    # Otherwise we construct from `include` and `exclude`.
+    if !isnothing(cb.exclude) && !isnothing(cb.include)
+        !isnothing(cb.exclude) && param ∈ cb.exclude && return false
+        !isnothing(cb.include) && param ∈ cb.include && return true
+        return false
+    elseif !isnothing(cb.include)
+        # If only `include` is given, we only return the variables in `include`.
+        return param ∈ cb.include
+    elseif !isnothing(cb.exclude)
+        # If only `exclude` is given, we return all variables except those in `exclude`.
+        return !(param ∈ cb.exclude)
+    end
 
+    # Otherwise we return `true` by default.
     return true
 end
 filter_param_and_value(cb::TensorBoardCallback, param_and_value::Tuple) = filter_param_and_value(cb, param_and_value...)
