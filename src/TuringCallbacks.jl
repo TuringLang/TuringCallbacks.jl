@@ -17,11 +17,12 @@ using DataStructures: DefaultDict
     using Requires
 end
 
-export TensorBoardCallback, DefaultDict, WindowStat, Thin, Skip
+export DefaultDict, WindowStat, Thin, Skip, TensorBoardCallback, MultiCallback
 
 include("stats.jl")
 include("tensorboardlogger.jl")
 include("callbacks/tensorboard.jl")
+include("callbacks/multicallback.jl")
 
 @static if !isdefined(Base, :get_extension)
     function __init__()
