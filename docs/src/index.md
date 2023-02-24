@@ -132,11 +132,55 @@ callback = TensorBoardCallback(
 ```
 Or you can create the filter (a mapping `variable_name -> ::Bool` yourself:
 ```julia
-var_filter(varname, value1) = varname != "m"
+var_filter(varname, value) = varname != "m"
 callback = TensorBoardCallback(
     "tensorboard_logs/run", stats;
     filter = var_filter
 )
+```
+
+## Supporting `TensorBoardCallback` with your own sampler
+
+It's also possible to make your own sampler compatible with `TensorBoardCallback`.
+
+To do so, you need to implement the following method:
+
+```@docs
+TuringCallbacks.params_and_values
+```
+
+If you don't have any particular names for your parameters, you're free to make use of the convenience method
+
+```@docs
+TuringCallbacks.default_param_names_for_values
+```
+
+
+!!! note
+    The `params_and_values(model, sampler, transition, state; kwargs...)` is not usually overloaded, but it can sometimes be useful for defining more complex behaviors.
+
+For example, if the `transition` for your `MySampler` is just a `Vector{Float64}`, a basic implementation of [`TuringCallbacks.params_and_values`](@ref) would just be
+
+```julia
+function TuringCallbacks.params_and_values(transition::Vectorr{Float64}; kwargs...)
+    param_names = TuringCallbacks.default_param_names_for_values(transition)
+    return zip(param_names, transition)
+end
+```
+
+Or sometimes the user might pass the parameter names in as a keyword argument, and so you might want to support that with something like
+
+```julia
+function TuringCallbacks.params_and_values(transition::Vectorr{Float64}; param_names = nothing, kwargs...)
+    param_names = isnothing(param_names) ? TuringCallbacks.default_param_names_for_values(transition) : param_names
+    return zip(param_names, transition)
+end
+```
+
+Finally, if you in addition want to log "extra" information, e.g. some sampler statistics you're keeping track of, you also need to implement
+
+```@docs
+TuringCallbacks.extras
 ```
 
 ## Types & Functions

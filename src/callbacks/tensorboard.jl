@@ -28,8 +28,8 @@ provided instead of `lg`.
   particular variable and value; expected signature is `filter(varname, value)`.
   If `isnothing` a default-filter constructed from `exclude` and 
   `include` will be used.
-- `exclude = String[]`: If non-empty, these variables will not be logged.
-- `include = String[]`: If non-empty, only these variables will be logged.
+- `exclude = nothing`: If non-empty, these variables will not be logged.
+- `include = nothing`: If non-empty, only these variables will be logged.
 - `include_extras::Bool = true`: Include extra statistics from transitions.
 - `directory::String = nothing`: if specified, will together with `comment` be used to
    define the logging directory.
@@ -113,10 +113,16 @@ function filter_param_and_value(cb::TensorBoardCallback, param, value)
         return cb.filter(param, value)
     end
 
-    # Othnerwise we construct from `include` and `exclude`.
-    !isnothing(cb.exclude) && param ∈ cb.exclude && return false
-    !isnothing(cb.include) && param ∈ cb.include && return true
+    # Otherwise we construct from `include` and `exclude`.
+    if !isnothing(cb.include)
+        # If only `include` is given, we only return the variables in `include`.
+        return param ∈ cb.include
+    elseif !isnothing(cb.exclude)
+        # If only `exclude` is given, we return all variables except those in `exclude`.
+        return !(param ∈ cb.exclude)
+    end
 
+    # Otherwise we return `true` by default.
     return true
 end
 filter_param_and_value(cb::TensorBoardCallback, param_and_value::Tuple) = filter_param_and_value(cb, param_and_value...)
@@ -130,18 +136,25 @@ default_param_names_for_values(x) = ("θ[$i]" for i = 1:length(x))
 
 
 """
-    params_and_values(transition[, state]; param_names = nothing)
+    params_and_values(transition[, state]; kwargs...)
+    params_and_values(model, sampler, transition, state; kwargs...)
 
 Return an iterator over parameter names and values from a `transition`.
 """
 params_and_values(transition, state; kwargs...) = params_and_values(transition; kwargs...)
+params_and_values(model, sampler, transition, state; kwargs...) = params_and_values(transition, state; kwargs...)
 
 """
     extras(transition[, state]; kwargs...)
+    extras(model, sampler, transition, state; kwargs...)
 
 Return an iterator with elements of the form `(name, value)` for additional statistics in `transition`.
+
+Default implementation returns an empty iterator.
 """
+extras(transition; kwargs...) = ()
 extras(transition, state; kwargs...) = extras(transition; kwargs...)
+extras(model, sampler, transition, state; kwargs...) = extras(transition, state; kwargs...)
 
 function (cb::TensorBoardCallback)(rng, model, sampler, transition, state, iteration; param_names=nothing, kwargs...)
     stats = cb.stats
@@ -150,7 +163,7 @@ function (cb::TensorBoardCallback)(rng, model, sampler, transition, state, itera
 
     # TODO: Should we use the explicit interface for TensorBoardLogger?
     with_logger(lg) do
-        for (k, val) in Iterators.filter(filterf, params_and_values(transition, state; param_names))
+        for (k, val) in Iterators.filter(filterf, params_and_values(transition, state; kwargs...))
             stat = stats[k]
 
             # Log the raw value
@@ -165,10 +178,11 @@ function (cb::TensorBoardCallback)(rng, model, sampler, transition, state, itera
 
         # Transition statstics
         if cb.include_extras
-            for (name, val) in extras(transition, state; param_names)
+            for (name, val) in extras(transition, state; kwargs...)
                 @info ("extras/" * name) val
             end
         end
-        @info "" log_step_increment=1
+        # Increment the step for the logger.
+        TensorBoardLogger.increment_step!(lg, 1)
     end
 end
