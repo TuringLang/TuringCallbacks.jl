@@ -114,11 +114,7 @@ function filter_param_and_value(cb::TensorBoardCallback, param, value)
     end
 
     # Otherwise we construct from `include` and `exclude`.
-    if !isnothing(cb.exclude) && !isnothing(cb.include)
-        !isnothing(cb.exclude) && param ∈ cb.exclude && return false
-        !isnothing(cb.include) && param ∈ cb.include && return true
-        return false
-    elseif !isnothing(cb.include)
+    if !isnothing(cb.include)
         # If only `include` is given, we only return the variables in `include`.
         return param ∈ cb.include
     elseif !isnothing(cb.exclude)
