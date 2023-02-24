@@ -176,6 +176,7 @@ function (cb::TensorBoardCallback)(rng, model, sampler, transition, state, itera
                 @info ("extras/" * name) val
             end
         end
-        @info "" log_step_increment=1
+        # Increment the step for the logger.
+        TensorBoardLogger.increment_step!(lg, 1)
     end
 end
