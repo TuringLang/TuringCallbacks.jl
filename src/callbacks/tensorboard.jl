@@ -52,6 +52,10 @@ struct TensorBoardCallback{L,F,VI,VE}
     exclude::VE
     "Include extra statistics from transitions."
     include_extras::Bool
+    "Prefix used for logging realizations/parameters"
+    param_prefix::String
+    "Prefix used for logging extra statistics"
+    extras_prefix::String
 end
 
 function TensorBoardCallback(directory::String, args...; kwargs...)
@@ -79,6 +83,8 @@ function TensorBoardCallback(
     include = nothing,
     include_extras::Bool = true,
     filter = nothing,
+    param_prefix::String = "",
+    extras_prefix::String = "extras/",
     kwargs...
 )
     # Lookups: create default ones if not given
@@ -99,7 +105,7 @@ function TensorBoardCallback(
     end
 
     return TensorBoardCallback(
-        lg, stats_lookup, filter, include, exclude, include_extras
+        lg, stats_lookup, filter, include, exclude, include_extras, param_prefix, extras_prefix
     )
 end
 
@@ -156,7 +162,7 @@ extras(transition; kwargs...) = ()
 extras(transition, state; kwargs...) = extras(transition; kwargs...)
 extras(model, sampler, transition, state; kwargs...) = extras(transition, state; kwargs...)
 
-function (cb::TensorBoardCallback)(rng, model, sampler, transition, state, iteration; param_names=nothing, kwargs...)
+function (cb::TensorBoardCallback)(rng, model, sampler, transition, state, iteration; kwargs...)
     stats = cb.stats
     lg = cb.logger
     filterf = Base.Fix1(filter_param_and_value, cb)
@@ -167,19 +173,19 @@ function (cb::TensorBoardCallback)(rng, model, sampler, transition, state, itera
             stat = stats[k]
 
             # Log the raw value
-            @info k val
+            @info "$(cb.param_prefix)$k" val
 
             # Update statistic estimators
             OnlineStats.fit!(stat, val)
 
             # Need some iterations before we start showing the stats
-            @info k stat
+            @info "$(cb.param_prefix)$k" stat
         end
 
         # Transition statstics
         if cb.include_extras
             for (name, val) in extras(transition, state; kwargs...)
-                @info ("extras/" * name) val
+                @info "$(cb.extras_prefix)$(name)" val
             end
         end
         # Increment the step for the logger.
