@@ -130,18 +130,25 @@ default_param_names_for_values(x) = ("θ[$i]" for i = 1:length(x))
 
 
 """
-    params_and_values(transition[, state]; param_names = nothing)
+    params_and_values(transition[, state]; kwargs...)
+    params_and_values(model, sampler, transition, state; kwargs...)
 
 Return an iterator over parameter names and values from a `transition`.
 """
 params_and_values(transition, state; kwargs...) = params_and_values(transition; kwargs...)
+params_and_values(model, sampler, transition, state; kwargs...) = params_and_values(transition, state; kwargs...)
 
 """
     extras(transition[, state]; kwargs...)
+    extras(model, sampler, transition, state; kwargs...)
 
 Return an iterator with elements of the form `(name, value)` for additional statistics in `transition`.
+
+Default implementation returns an empty iterator.
 """
+extras(transition; kwargs...) = ()
 extras(transition, state; kwargs...) = extras(transition; kwargs...)
+extras(model, sampler, transition, state; kwargs...) = extras(transition, state; kwargs...)
 
 function (cb::TensorBoardCallback)(rng, model, sampler, transition, state, iteration; param_names=nothing, kwargs...)
     stats = cb.stats
@@ -150,7 +157,7 @@ function (cb::TensorBoardCallback)(rng, model, sampler, transition, state, itera
 
     # TODO: Should we use the explicit interface for TensorBoardLogger?
     with_logger(lg) do
-        for (k, val) in Iterators.filter(filterf, params_and_values(transition, state; param_names))
+        for (k, val) in Iterators.filter(filterf, params_and_values(transition, state; kwargs...))
             stat = stats[k]
 
             # Log the raw value
@@ -165,7 +172,7 @@ function (cb::TensorBoardCallback)(rng, model, sampler, transition, state, itera
 
         # Transition statstics
         if cb.include_extras
-            for (name, val) in extras(transition, state; param_names)
+            for (name, val) in extras(transition, state; kwargs...)
                 @info ("extras/" * name) val
             end
         end
