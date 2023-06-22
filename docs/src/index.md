@@ -74,7 +74,7 @@ In particular, note the "Distributions" tab in the above picture. Clicking this,
 
 ![TensorBoard dashboard](assets/tensorboard_demo_distributions_screen.png)
 
-And finally, the "Histogram" tab shows a slighly more visually pleasing version of the marginal distributions:
+And finally, the "Histogram" tab shows a slightly more visually pleasing version of the marginal distributions:
 
 ![TensorBoard dashboard](assets/tensorboard_demo_histograms_screen.png)
 
@@ -130,7 +130,7 @@ callback = TensorBoardCallback(
     exclude = ["m", ], include_extras = false
 )
 ```
-Or you can create the filter (a mapping `variable_name -> ::Bool` yourself:
+Or you can create the filter (a mapping `variable_name -> ::Bool`) yourself:
 ```julia
 var_filter(varname, value) = varname != "m"
 callback = TensorBoardCallback(
