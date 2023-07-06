@@ -22,7 +22,7 @@ pkg> add TuringCallbacks.jl
 ```
 
 ## Visualizing sampling on-the-fly
-`TensorBoardCallback` is a wrapper around `TensorBoardLogger.TBLogger` which can be used to create a `callback` compatible with `Turing.sample`.
+`TensorBoardCallback` is a wrapper around `TensorBoardLogger.AbstractLogger` which can be used to create a `callback` compatible with `Turing.sample`.
 
 To actually visualize the results of the logging, you need to have installed `tensorboard` in Python. If you do not have `tensorboard` installed,
 it should hopefully be sufficient to just run
@@ -35,7 +35,7 @@ python3 -m tensorboard.main --logdir tensorboard_logs/run
 ```
 Now we're ready to actually write some Julia code.
 
-The following snippet demonstrates the usage of `TensorBoardCallback` on a simple model. 
+The following snippet demonstrates the usage of `TensorBoardCallback` on a simple model.
 This will write a set of statistics at each iteration to an event-file compatible with Tensorboard:
 
 ```julia
