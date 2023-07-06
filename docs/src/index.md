@@ -22,7 +22,7 @@ pkg> add TuringCallbacks.jl
 ```
 
 ## Visualizing sampling on-the-fly
-`TensorBoardCallback` is a wrapper around `TensorBoardLogger.AbstractLogger` which can be used to create a `callback` compatible with `Turing.sample`.
+`TensorBoardCallback` is a wrapper around `Base.CoreLogging.AbstractLogger` which can be used to create a `callback` compatible with `Turing.sample`.
 
 To actually visualize the results of the logging, you need to have installed `tensorboard` in Python. If you do not have `tensorboard` installed,
 it should hopefully be sufficient to just run
