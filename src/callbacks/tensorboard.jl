@@ -3,8 +3,8 @@ using Dates
 """
     $(TYPEDEF)
 
-Wraps a `TensorBoardLogger.AbstractLogger` to construct a callback to
-be passed to `AbstractMCMC.step`.
+Wraps a `CoreLogging.AbstractLogger` to construct a callback to be
+passed to `AbstractMCMC.step`.
 
 # Usage
 
@@ -16,6 +16,7 @@ Constructs an instance of a `TensorBoardCallback`, creating a `TBLogger` if `dir
 provided instead of `lg`.
 
 ## Arguments
+- `lg`: an instance of an `AbstractLogger` which implements `TuringCallbacks.increment_step!`.
 - `stats = nothing`: `OnlineStat` or lookup for variable name to statistic estimator.
   If `stats isa OnlineStat`, we will create a `DefaultDict` which copies `stats` for unseen
   variable names.
@@ -163,6 +164,9 @@ extras(transition; kwargs...) = ()
 extras(transition, state; kwargs...) = extras(transition; kwargs...)
 extras(model, sampler, transition, state; kwargs...) = extras(transition, state; kwargs...)
 
+increment_step!(lg::TensorBoardLogger.TBLogger, Δ_Step) =
+    TensorBoardLogger.increment_step!(lg, Δ_Step)
+
 function (cb::TensorBoardCallback)(rng, model, sampler, transition, state, iteration; kwargs...)
     stats = cb.stats
     lg = cb.logger
@@ -190,6 +194,6 @@ function (cb::TensorBoardCallback)(rng, model, sampler, transition, state, itera
             end
         end
         # Increment the step for the logger.
-        TensorBoardLogger.increment_step!(lg, 1)
+        increment_step!(lg, 1)
     end
 end
