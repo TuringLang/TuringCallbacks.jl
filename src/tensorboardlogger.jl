@@ -68,7 +68,7 @@ end
 
 # Unlike the `preprocess` overload, this allows us to specify if we want to normalize
 function TBL.log_histogram(
-    logger::TBLogger, name::AbstractString, hist::OnlineStats.HistogramStat;
+    logger::AbstractLogger, name::AbstractString, hist::OnlineStats.HistogramStat;
     step=nothing, normalize=false
 )
     edges = edges(hist)

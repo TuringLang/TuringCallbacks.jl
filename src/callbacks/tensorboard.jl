@@ -3,18 +3,20 @@ using Dates
 """
     $(TYPEDEF)
 
-Wraps a `TensorBoardLogger.TBLogger` to construct a callback to be passed to `AbstractMCMC.step`.
+Wraps a `CoreLogging.AbstractLogger` to construct a callback to be
+passed to `AbstractMCMC.step`.
 
 # Usage
 
     TensorBoardCallback(; kwargs...)
     TensorBoardCallback(directory::string[, stats]; kwargs...)
-    TensorBoardCallback(lg::TBLogger[, stats]; kwargs...)
+    TensorBoardCallback(lg::AbstractLogger[, stats]; kwargs...)
 
-Constructs an instance of a `TensorBoardCallback`, creating a `TBLogger` if `directory` is 
+Constructs an instance of a `TensorBoardCallback`, creating a `TBLogger` if `directory` is
 provided instead of `lg`.
 
 ## Arguments
+- `lg`: an instance of an `AbstractLogger` which implements `TuringCallbacks.increment_step!`.
 - `stats = nothing`: `OnlineStat` or lookup for variable name to statistic estimator.
   If `stats isa OnlineStat`, we will create a `DefaultDict` which copies `stats` for unseen
   variable names.
@@ -24,9 +26,9 @@ provided instead of `lg`.
 
 ## Keyword arguments
 - `num_bins::Int = 100`: Number of bins to use in the histograms.
-- `filter = nothing`: Filter determining whether or not we should log stats for a 
+- `filter = nothing`: Filter determining whether or not we should log stats for a
   particular variable and value; expected signature is `filter(varname, value)`.
-  If `isnothing` a default-filter constructed from `exclude` and 
+  If `isnothing` a default-filter constructed from `exclude` and
   `include` will be used.
 - `exclude = nothing`: If non-empty, these variables will not be logged.
 - `include = nothing`: If non-empty, only these variables will be logged.
@@ -41,7 +43,7 @@ $(TYPEDFIELDS)
 """
 struct TensorBoardCallback{L,F,VI,VE}
     "Underlying logger."
-    logger::TBLogger
+    logger::AbstractLogger
     "Lookup for variable name to statistic estimate."
     stats::L
     "Filter determining whether or not we should log stats for a particular variable."
@@ -68,7 +70,7 @@ function TensorBoardCallback(args...; comment = "", directory = nothing, kwargs.
     else
         directory
     end
-    
+
     # Set up the logger
     lg = TBLogger(log_dir, min_level=Logging.Info; step_increment=0)
 
@@ -76,7 +78,7 @@ function TensorBoardCallback(args...; comment = "", directory = nothing, kwargs.
 end
 
 function TensorBoardCallback(
-    lg::TBLogger,
+    lg::AbstractLogger,
     stats = nothing;
     num_bins::Int = 100,
     exclude = nothing,
@@ -162,6 +164,9 @@ extras(transition; kwargs...) = ()
 extras(transition, state; kwargs...) = extras(transition; kwargs...)
 extras(model, sampler, transition, state; kwargs...) = extras(transition, state; kwargs...)
 
+increment_step!(lg::TensorBoardLogger.TBLogger, Δ_Step) =
+    TensorBoardLogger.increment_step!(lg, Δ_Step)
+
 function (cb::TensorBoardCallback)(rng, model, sampler, transition, state, iteration; kwargs...)
     stats = cb.stats
     lg = cb.logger
@@ -189,6 +194,6 @@ function (cb::TensorBoardCallback)(rng, model, sampler, transition, state, itera
             end
         end
         # Increment the step for the logger.
-        TensorBoardLogger.increment_step!(lg, 1)
+        increment_step!(lg, 1)
     end
 end
