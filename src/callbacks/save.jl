@@ -16,7 +16,7 @@ function SaveCSV(
     iteration::Int64;
     kwargs...,
 )
-    SaveCSV(model, sampler, transition, state.vi, iteration; kwargs...)
+    SaveCSV(rng, model, sampler, transition, state.vi, iteration; kwargs...)
 end
 
 function SaveCSV(

@@ -20,7 +20,7 @@ using DataStructures: DefaultDict
     using Requires
 end
 
-export DefaultDict, WindowStat, Thin, Skip, TensorBoardCallback, MultiCallback
+export DefaultDict, WindowStat, Thin, Skip, TensorBoardCallback, MultiCallback, SaveCSV
 
 include("stats.jl")
 include("tensorboardlogger.jl")

@@ -2,6 +2,8 @@ using Test
 using Turing
 using TuringCallbacks
 using TensorBoardLogger, ValueHistories
+using CSV
+using DataFrames
 
 Base.@kwdef struct CountingCallback
     count::Ref{Int} = Ref(0)
@@ -28,7 +30,7 @@ end
 
     # Sampling algorithm to use
     alg = NUTS(num_adapts, 0.65)
-
+ 
     @testset "MultiCallback" begin
         callback = MultiCallback(CountingCallback(), CountingCallback())
         chain = sample(model, alg, num_samples, callback = callback)
@@ -60,5 +62,13 @@ end
 
         @test m_mean ≈ mean(chain[:m])
         @test s_mean ≈ mean(chain[:s])
+    end
+
+    @testset "SaveCallback" begin
+        # Sample
+        sample(model, alg, num_samples; callback = SaveCSV, chain_name="chain_1")
+        chain = Matrix(CSV.read("chain_1.csv", DataFrame,  header=false))
+        @test size(chain) == (num_samples, 2)
+        rm("chain_1.csv")
     end
 end
