@@ -5,6 +5,8 @@ using Reexport
 using LinearAlgebra
 using Logging
 using DocStringExtensions
+using DynamicPPL: Model, Sampler, AbstractVarInfo, invlink!!
+using CSV: write 
 
 @reexport using OnlineStats # used to compute different statistics on-the-fly
 
@@ -21,8 +23,9 @@ export DefaultDict, WindowStat, Thin, Skip, TensorBoardCallback, MultiCallback
 
 include("stats.jl")
 include("tensorboardlogger.jl")
-include("callbacks/tensorboard.jl")
 include("callbacks/multicallback.jl")
+include("callbacks/save.jl")
+include("callbacks/tensorboard.jl")
 
 @static if !isdefined(Base, :get_extension)
     function __init__()
