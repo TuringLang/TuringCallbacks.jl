@@ -6,7 +6,8 @@ using LinearAlgebra
 using Logging
 using DocStringExtensions
 using DynamicPPL: Model, Sampler, AbstractVarInfo, invlink!!
-using CSV: write 
+using CSV: write
+using Random: AbstractRNG
 
 @reexport using OnlineStats # used to compute different statistics on-the-fly
 
@@ -29,7 +30,9 @@ include("callbacks/tensorboard.jl")
 
 @static if !isdefined(Base, :get_extension)
     function __init__()
-        @require Turing="fce5fe82-541a-59a6-adf8-730c64b5f9a0" include("../ext/TuringCallbacksTuringExt.jl")
+        @require Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0" include(
+            "../ext/TuringCallbacksTuringExt.jl",
+        )
     end
 end
 

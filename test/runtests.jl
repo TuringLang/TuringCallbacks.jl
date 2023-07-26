@@ -4,7 +4,7 @@ using TuringCallbacks
 using TensorBoardLogger, ValueHistories
 
 Base.@kwdef struct CountingCallback
-    count::Ref{Int}=Ref(0)
+    count::Ref{Int} = Ref(0)
 end
 
 (c::CountingCallback)(args...; kwargs...) = c.count[] += 1
@@ -31,7 +31,7 @@ end
 
     @testset "MultiCallback" begin
         callback = MultiCallback(CountingCallback(), CountingCallback())
-        chain = sample(model, alg, num_samples, callback=callback)
+        chain = sample(model, alg, num_samples, callback = callback)
 
         # Both should have been trigger an equal number of times.
         counts = map(c -> c.count[], callback.callbacks)
@@ -49,7 +49,7 @@ end
         callback = TensorBoardCallback(mktempdir())
 
         # Sample
-        chain = sample(model, alg, num_samples; callback=callback)
+        chain = sample(model, alg, num_samples; callback = callback)
 
         # Extract the values.
         hist = convert(MVHistory, callback.logger)

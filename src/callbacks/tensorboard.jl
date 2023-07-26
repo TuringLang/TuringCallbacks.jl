@@ -72,7 +72,7 @@ function TensorBoardCallback(args...; comment = "", directory = nothing, kwargs.
     end
 
     # Set up the logger
-    lg = TBLogger(log_dir, min_level=Logging.Info; step_increment=0)
+    lg = TBLogger(log_dir, min_level = Logging.Info; step_increment = 0)
 
     return TensorBoardCallback(lg, args...; kwargs...)
 end
@@ -87,14 +87,15 @@ function TensorBoardCallback(
     filter = nothing,
     param_prefix::String = "",
     extras_prefix::String = "extras/",
-    kwargs...
+    kwargs...,
 )
     # Lookups: create default ones if not given
     stats_lookup = if stats isa OnlineStat
         # Warn the user if they've provided a non-empty `OnlineStat`
-        OnlineStats.nobs(stats) > 0 && @warn("using statistic with observations as a base: $(stats)")
+        OnlineStats.nobs(stats) > 0 &&
+            @warn("using statistic with observations as a base: $(stats)")
         let o = stats
-            DefaultDict{String, typeof(o)}(() -> deepcopy(o))
+            DefaultDict{String,typeof(o)}(() -> deepcopy(o))
         end
     elseif !isnothing(stats)
         # If it's not an `OnlineStat` nor `nothing`, assume user knows what they're doing
@@ -102,12 +103,19 @@ function TensorBoardCallback(
     else
         # This is default
         let o = OnlineStats.Series(Mean(), Variance(), KHist(num_bins))
-            DefaultDict{String, typeof(o)}(() -> deepcopy(o))
+            DefaultDict{String,typeof(o)}(() -> deepcopy(o))
         end
     end
 
     return TensorBoardCallback(
-        lg, stats_lookup, filter, include, exclude, include_extras, param_prefix, extras_prefix
+        lg,
+        stats_lookup,
+        filter,
+        include,
+        exclude,
+        include_extras,
+        param_prefix,
+        extras_prefix,
     )
 end
 
@@ -133,7 +141,8 @@ function filter_param_and_value(cb::TensorBoardCallback, param, value)
     # Otherwise we return `true` by default.
     return true
 end
-filter_param_and_value(cb::TensorBoardCallback, param_and_value::Tuple) = filter_param_and_value(cb, param_and_value...)
+filter_param_and_value(cb::TensorBoardCallback, param_and_value::Tuple) =
+    filter_param_and_value(cb, param_and_value...)
 
 """
     default_param_names_for_values(x)
@@ -150,7 +159,8 @@ default_param_names_for_values(x) = ("θ[$i]" for i = 1:length(x))
 Return an iterator over parameter names and values from a `transition`.
 """
 params_and_values(transition, state; kwargs...) = params_and_values(transition; kwargs...)
-params_and_values(model, sampler, transition, state; kwargs...) = params_and_values(transition, state; kwargs...)
+params_and_values(model, sampler, transition, state; kwargs...) =
+    params_and_values(transition, state; kwargs...)
 
 """
     extras(transition[, state]; kwargs...)
@@ -167,14 +177,23 @@ extras(model, sampler, transition, state; kwargs...) = extras(transition, state;
 increment_step!(lg::TensorBoardLogger.TBLogger, Δ_Step) =
     TensorBoardLogger.increment_step!(lg, Δ_Step)
 
-function (cb::TensorBoardCallback)(rng, model, sampler, transition, state, iteration; kwargs...)
+function (cb::TensorBoardCallback)(
+    rng,
+    model,
+    sampler,
+    transition,
+    state,
+    iteration;
+    kwargs...,
+)
     stats = cb.stats
     lg = cb.logger
     filterf = Base.Fix1(filter_param_and_value, cb)
 
     # TODO: Should we use the explicit interface for TensorBoardLogger?
     with_logger(lg) do
-        for (k, val) in Iterators.filter(filterf, params_and_values(transition, state; kwargs...))
+        for (k, val) in
+            Iterators.filter(filterf, params_and_values(transition, state; kwargs...))
             stat = stats[k]
 
             # Log the raw value

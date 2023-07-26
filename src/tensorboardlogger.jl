@@ -41,10 +41,10 @@ end
 
 function TBL.preprocess(name, stat::AutoCov, data)
     autocor = OnlineStats.autocor(stat)
-    for b = 1:(stat.lag.b - 1)
+    for b = 1:(stat.lag.b-1)
         # `autocor[i]` corresponds to the lag of size `i - 1` and `autocor[1] = 1.0`
         bname = tb_name(stat, b)
-        TBL.preprocess(tb_name(name, bname), autocor[b + 1], data)
+        TBL.preprocess(tb_name(name, bname), autocor[b+1], data)
     end
 end
 
@@ -60,22 +60,23 @@ function TBL.preprocess(name, hist::KHist, data)
         # Creates a NORMALIZED histogram
         edges = OnlineStats.edges(hist)
         cnts = OnlineStats.counts(hist)
-        TBL.preprocess(
-            name, (edges, cnts ./ sum(cnts)), data
-        )
+        TBL.preprocess(name, (edges, cnts ./ sum(cnts)), data)
     end
 end
 
 # Unlike the `preprocess` overload, this allows us to specify if we want to normalize
 function TBL.log_histogram(
-    logger::AbstractLogger, name::AbstractString, hist::OnlineStats.HistogramStat;
-    step=nothing, normalize=false
+    logger::AbstractLogger,
+    name::AbstractString,
+    hist::OnlineStats.HistogramStat;
+    step = nothing,
+    normalize = false,
 )
     edges = edges(hist)
     cnts = Float64.(OnlineStats.counts(hist))
     if normalize
-        return TBL.log_histogram(logger, name, (edges, cnts ./ sum(cnts)); step=step)
+        return TBL.log_histogram(logger, name, (edges, cnts ./ sum(cnts)); step = step)
     else
-        return TBL.log_histogram(logger, name, (edges, cnts); step=step)
+        return TBL.log_histogram(logger, name, (edges, cnts); step = step)
     end
 end

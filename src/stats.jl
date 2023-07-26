@@ -10,7 +10,7 @@ $(TYPEDEF)
 
 Skips the first `b` observations before passing them on to `stat`.
 """
-mutable struct Skip{T, O<:OnlineStat{T}} <: OnlineStat{T}
+mutable struct Skip{T,O<:OnlineStat{T}} <: OnlineStat{T}
     b::Int
     current_index::Int
     stat::O
@@ -29,10 +29,8 @@ function OnlineStats._fit!(o::Skip, x::Real)
     return o
 end
 
-Base.show(io::IO, o::Skip) = print(
-    io,
-    "Skip ($(o.b)): current_index=$(o.current_index) | stat=$(o.stat)`"
-)
+Base.show(io::IO, o::Skip) =
+    print(io, "Skip ($(o.b)): current_index=$(o.current_index) | stat=$(o.stat)`")
 
 """
 $(TYPEDEF)
@@ -43,7 +41,7 @@ $(TYPEDEF)
 
 Thins `stat` with an interval `b`, i.e. only passes every b-th observation to `stat`.
 """
-mutable struct Thin{T, O<:OnlineStat{T}} <: OnlineStat{T}
+mutable struct Thin{T,O<:OnlineStat{T}} <: OnlineStat{T}
     b::Int
     current_index::Int
     stat::O
@@ -62,10 +60,8 @@ function OnlineStats._fit!(o::Thin, x::Real)
     return o
 end
 
-Base.show(io::IO, o::Thin) = print(
-    io,
-    "Thin ($(o.b)): current_index=$(o.current_index) | stat=$(o.stat)`"
-)
+Base.show(io::IO, o::Thin) =
+    print(io, "Thin ($(o.b)): current_index=$(o.current_index) | stat=$(o.stat)`")
 
 """
 $(TYPEDEF)
@@ -80,27 +76,26 @@ $(TYPEDEF)
 `stat`, which is *only* fitted on the batched data contained in the `MovingWindow`.
 
 """
-struct WindowStat{T, O} <: OnlineStat{T}
+struct WindowStat{T,O} <: OnlineStat{T}
     window::MovingWindow{T}
     stat::O
 end
 
-WindowStat(b::Int, T::Type, o) = WindowStat{T, typeof(o)}(MovingWindow(b, T), o)
-WindowStat(b::Int, o::OnlineStat{T}) where {T} = WindowStat{T, typeof(o)}(
-    MovingWindow(b, T), o
-)
+WindowStat(b::Int, T::Type, o) = WindowStat{T,typeof(o)}(MovingWindow(b, T), o)
+WindowStat(b::Int, o::OnlineStat{T}) where {T} =
+    WindowStat{T,typeof(o)}(MovingWindow(b, T), o)
 
 # Proxy methods to the window
 OnlineStats.nobs(o::WindowStat) = OnlineStats.nobs(o.window)
 OnlineStats._fit!(o::WindowStat, x) = OnlineStats._fit!(o.window, x)
 
-function OnlineStats.value(o::WindowStat{<:Any, <:OnlineStat})
+function OnlineStats.value(o::WindowStat{<:Any,<:OnlineStat})
     stat_new = deepcopy(o.stat)
     fit!(stat_new, OnlineStats.value(o.window))
     return stat_new
 end
 
-function OnlineStats.value(o::WindowStat{<:Any, <:Function})
+function OnlineStats.value(o::WindowStat{<:Any,<:Function})
     stat_new = o.stat()
     fit!(stat_new, OnlineStats.value(o.window))
     return stat_new
