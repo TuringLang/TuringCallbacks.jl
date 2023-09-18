@@ -110,14 +110,41 @@ function TensorBoardCallback(
     )
 end
 
+const TuringTransition = Union{
+    Turing.Inference.Transition,
+    Turing.Inference.SMCTransition,
+    Turing.Inference.PGTransition,
+}
+
+"""
+    params_from_transition(transition)
+
+Return an iterator over `(name, value)` present in `transition` where
+`name` is a string and `value` is a scalar.
+"""
+function params_from_transition(transition::TuringTransition)
+    vns, vals = Turing.Inference._params_to_array([transition])
+    return zip(Iterators.map(string, vns), vals)
+end
+
+"""
+    extras_from_transition(transition)
+
+Return an iterator over `(name, value)` present in `transition` where
+`name` is a string and `value` is a scalar.
+"""
+function extras_from_transition(transition::TuringTransition)
+    names, vals = Turing.Inference.get_transition_extras([transition])
+    return zip(string.(names), vec(vals))
+end
+
 function (cb::TensorBoardCallback)(rng, model, sampler, transition, iteration, state; kwargs...)
     stats = cb.stats
     lg = cb.logger
     filter = cb.variable_filter
     
     with_logger(lg) do
-        for (ksym, val) in zip(Turing.Inference._params_to_array([transition])...)
-            k = string(ksym)
+        for (k, val) in params_from_transition(transition)
             if !filter(k)
                 continue
             end
@@ -135,8 +162,7 @@ function (cb::TensorBoardCallback)(rng, model, sampler, transition, iteration, s
 
         # Transition statstics
         if cb.include_extras
-            names, vals = Turing.Inference.get_transition_extras([transition])
-            for (name, val) in zip(string.(names), vec(vals))
+            for (name, val) in extras_from_transition(transition)
                 @info ("extras/" * name) val
             end
         end
