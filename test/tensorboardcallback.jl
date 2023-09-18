@@ -135,6 +135,7 @@
 
             # HACK: This touches internals so might just break at some point.
             # If it some point does, let's just remove this test.
+            # Inspiration: https://github.com/JuliaLogging/TensorBoardLogger.jl/blob/3d9c1a554a08179785459ad7b83bce0177b90275/src/Deserialization/deserialization.jl#L244-L258
             iter = TensorBoardLogger.TBEventFileCollectionIterator(
                 callback.logger.logdir, purge=true
             )
