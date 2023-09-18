@@ -41,19 +41,21 @@ provided instead of `lg`.
 # Fields
 $(TYPEDFIELDS)
 """
-struct TensorBoardCallback{L,F,VI,VE}
+struct TensorBoardCallback{L,F1,F2,F3}
     "Underlying logger."
     logger::AbstractLogger
     "Lookup for variable name to statistic estimate."
     stats::L
-    "Filter determining whether or not we should log stats for a particular variable."
-    filter::F
-    "Variables to include in the logging."
-    include::VI
-    "Variables to exclude from the logging."
-    exclude::VE
+    "Filter determining whether to include stats for a particular variable."
+    variable_filter::F1
     "Include extra statistics from transitions."
     include_extras::Bool
+    "Filter determining whether to include a particular extra statistic."
+    extras_filter::F2
+    "Include hyperparameters."
+    include_hyperparams::Bool
+    "Filter determining whether to include a particular hyperparameter."
+    hyperparam_filter::F3
     "Prefix used for logging realizations/parameters"
     param_prefix::String
     "Prefix used for logging extra statistics"
@@ -77,18 +79,37 @@ function TensorBoardCallback(args...; comment = "", directory = nothing, kwargs.
     return TensorBoardCallback(lg, args...; kwargs...)
 end
 
+maybe_filter(f; kwargs...) = f
+maybe_filter(::Nothing; exclude=nothing, include=nothing) = NameFilter(; exclude, include)
+
 function TensorBoardCallback(
     lg::AbstractLogger,
     stats = nothing;
     num_bins::Int = 100,
     exclude = nothing,
     include = nothing,
-    include_extras::Bool = true,
     filter = nothing,
+    include_extras::Bool = true,
+    extras_include = nothing,
+    extras_exclude = nothing,
+    extras_filter = nothing,
+    include_hyperparams::Bool = false,
+    hyperparams_include = nothing,
+    hyperparams_exclude = nothing,
+    hyperparams_filter = nothing,
     param_prefix::String = "",
     extras_prefix::String = "extras/",
     kwargs...
 )
+    # Create the filters.
+    variable_filter_f = maybe_filter(filter; include=include, exclude=exclude)
+    extras_filter_f = maybe_filter(
+        extras_filter; include=extras_include, exclude=extras_exclude
+    )
+    hyperparams_filter_f = maybe_filter(
+        hyperparams_filter; include=hyperparams_include, exclude=hyperparams_exclude
+    )
+
     # Lookups: create default ones if not given
     stats_lookup = if stats isa OnlineStat
         # Warn the user if they've provided a non-empty `OnlineStat`
@@ -107,7 +128,15 @@ function TensorBoardCallback(
     end
 
     return TensorBoardCallback(
-        lg, stats_lookup, filter, include, exclude, include_extras, param_prefix, extras_prefix
+        lg,
+        stats_lookup,
+        variable_filter_f,
+        include_extras,
+        extras_filter_f,
+        include_hyperparams,
+        hyperparams_filter_f,
+        param_prefix,
+        extras_prefix
     )
 end
 
@@ -117,23 +146,11 @@ end
 Filter parameters and values from a `transition` based on the `filter` of `cb`.
 """
 function filter_param_and_value(cb::TensorBoardCallback, param, value)
-    if !isnothing(cb.filter)
-        return cb.filter(param, value)
-    end
-
-    # Otherwise we construct from `include` and `exclude`.
-    if !isnothing(cb.include)
-        # If only `include` is given, we only return the variables in `include`.
-        return param ∈ cb.include
-    elseif !isnothing(cb.exclude)
-        # If only `exclude` is given, we return all variables except those in `exclude`.
-        return !(param ∈ cb.exclude)
-    end
-
-    # Otherwise we return `true` by default.
-    return true
+    return cb.variable_filter(param, value)
 end
-filter_param_and_value(cb::TensorBoardCallback, param_and_value::Tuple) = filter_param_and_value(cb, param_and_value...)
+function filter_param_and_value(cb::TensorBoardCallback, param_and_value::Tuple)
+    filter_param_and_value(cb, param_and_value...)
+end
 
 """
     default_param_names_for_values(x)
@@ -150,7 +167,9 @@ default_param_names_for_values(x) = ("θ[$i]" for i = 1:length(x))
 Return an iterator over parameter names and values from a `transition`.
 """
 params_and_values(transition, state; kwargs...) = params_and_values(transition; kwargs...)
-params_and_values(model, sampler, transition, state; kwargs...) = params_and_values(transition, state; kwargs...)
+function params_and_values(model, sampler, transition, state; kwargs...)
+    return params_and_values(transition, state; kwargs...)
+end
 
 """
     extras(transition[, state]; kwargs...)
@@ -164,17 +183,81 @@ extras(transition; kwargs...) = ()
 extras(transition, state; kwargs...) = extras(transition; kwargs...)
 extras(model, sampler, transition, state; kwargs...) = extras(transition, state; kwargs...)
 
+"""
+    filter_extras_and_value(cb::TensorBoardCallback, name, value)
+
+Filter extras and values from a `transition` based on the `filter` of `cb`.
+"""
+function filter_extras_and_value(cb::TensorBoardCallback, name, value)
+    return cb.extras_filter(name, value)
+end
+function filter_extras_and_value(cb::TensorBoardCallback, name_and_value::Tuple)
+    return filter_extras_and_value(cb, name_and_value...)
+end
+
+"""
+    hyperparams(model, sampler[, transition, state]; kwargs...)
+
+Return an iterator with elements of the form `(name, value)` for hyperparameters in `model`.
+"""
+hyperparams(model, sampler; kwargs...) = Pair{String, Any}[]
+function hyperparams(model, sampler, transition, state; kwargs...)
+    return hyperparams(model, sampler; kwargs...)
+end
+
+"""
+    filter_hyperparams_and_value(cb::TensorBoardCallback, name, value)
+
+Filter hyperparameters and values from a `transition` based on the `filter` of `cb`.
+"""
+function filter_hyperparams_and_value(cb::TensorBoardCallback, name, value)
+    return cb.hyperparam_filter(name, value)
+end
+function filter_hyperparams_and_value(cb::TensorBoardCallback, name_and_value::Tuple)
+    return filter_hyperparams_and_value(cb, name_and_value...)
+end
+
+"""
+    hyperparam_metrics(model, sampler[, transition, state]; kwargs...)
+
+Return a `Vector{String}` of metrics for hyperparameters in `model`.
+"""
+hyperparam_metrics(model, sampler; kwargs...) = String[]
+function hyperparam_metrics(model, sampler, transition, state; kwargs...)
+    return hyperparam_metrics(model, sampler; kwargs...)
+end
+
 increment_step!(lg::TensorBoardLogger.TBLogger, Δ_Step) =
     TensorBoardLogger.increment_step!(lg, Δ_Step)
 
 function (cb::TensorBoardCallback)(rng, model, sampler, transition, state, iteration; kwargs...)
     stats = cb.stats
     lg = cb.logger
-    filterf = Base.Fix1(filter_param_and_value, cb)
+    variable_filter = Base.Fix1(filter_param_and_value, cb)
+    extras_filter = Base.Fix1(filter_extras_and_value, cb)
+    hyperparams_filter = Base.Fix1(filter_hyperparams_and_value, cb)
+
+    if iteration == 1 && cb.include_hyperparams
+        # If it's the first iteration, we write the hyperparameters.
+        TensorBoardLogger.write_hparams!(
+            lg,
+            Dict(
+                Iterators.filter(
+                    hyperparams_filter,
+                    hyperparams(model, sampler, transition, state; kwargs...)
+                )
+            ),
+            hyperparam_metrics(model, sampler)
+        )
+    end
+
 
     # TODO: Should we use the explicit interface for TensorBoardLogger?
     with_logger(lg) do
-        for (k, val) in Iterators.filter(filterf, params_and_values(transition, state; kwargs...))
+        for (k, val) in Iterators.filter(
+            variable_filter,
+            params_and_values(transition, state; kwargs...)
+        )
             stat = stats[k]
 
             # Log the raw value
@@ -189,8 +272,18 @@ function (cb::TensorBoardCallback)(rng, model, sampler, transition, state, itera
 
         # Transition statstics
         if cb.include_extras
-            for (name, val) in extras(transition, state; kwargs...)
+            for (name, val) in Iterators.filter(
+                extras_filter,
+                extras(transition, state; kwargs...)
+            )
                 @info "$(cb.extras_prefix)$(name)" val
+
+                # TODO: Make this customizable.
+                if val isa Real
+                    stat = stats["$(cb.extras_prefix)$(name)"]
+                    fit!(stat, float(val))
+                    @info ("$(cb.extras_prefix)$(name)") stat
+                end
             end
         end
         # Increment the step for the logger.

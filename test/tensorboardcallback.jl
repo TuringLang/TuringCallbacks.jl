@@ -13,7 +13,7 @@
 
     @testset "Correctness of values" begin
         # Create the callback
-        callback = TensorBoardCallback(mktempdir())
+        callback = TensorBoardCallback(joinpath(tmpdir, "runs"))
 
         # Sample
         chain = sample(demo_model, alg, num_samples; callback=callback)

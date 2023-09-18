@@ -19,6 +19,7 @@ end
 
 export DefaultDict, WindowStat, Thin, Skip, TensorBoardCallback, MultiCallback
 
+include("utils.jl")
 include("stats.jl")
 include("tensorboardlogger.jl")
 include("callbacks/tensorboard.jl")
