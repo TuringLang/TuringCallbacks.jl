@@ -161,27 +161,31 @@ default_param_names_for_values(x) = ("θ[$i]" for i = 1:length(x))
 
 
 """
-    params_and_values(transition[, state]; kwargs...)
+    params_and_values(model, transition[, state]; kwargs...)
     params_and_values(model, sampler, transition, state; kwargs...)
 
 Return an iterator over parameter names and values from a `transition`.
 """
-params_and_values(transition, state; kwargs...) = params_and_values(transition; kwargs...)
+function params_and_values(model, transition, state; kwargs...)
+    return params_and_values(model, transition; kwargs...)
+end
 function params_and_values(model, sampler, transition, state; kwargs...)
-    return params_and_values(transition, state; kwargs...)
+    return params_and_values(model, transition, state; kwargs...)
 end
 
 """
-    extras(transition[, state]; kwargs...)
+    extras(model, transition[, state]; kwargs...)
     extras(model, sampler, transition, state; kwargs...)
 
 Return an iterator with elements of the form `(name, value)` for additional statistics in `transition`.
 
 Default implementation returns an empty iterator.
 """
-extras(transition; kwargs...) = ()
-extras(transition, state; kwargs...) = extras(transition; kwargs...)
-extras(model, sampler, transition, state; kwargs...) = extras(transition, state; kwargs...)
+extras(model, transition; kwargs...) = ()
+extras(model, transition, state; kwargs...) = extras(model, transition; kwargs...)
+function extras(model, sampler, transition, state; kwargs...)
+    return extras(model, transition, state; kwargs...)
+end
 
 """
     filter_extras_and_value(cb::TensorBoardCallback, name, value)
@@ -252,13 +256,11 @@ function (cb::TensorBoardCallback)(rng, model, sampler, transition, state, itera
             hyperparams_filter,
             hyperparams(model, sampler, transition, state; kwargs...)
         ))
-        hmetrics = hyperparam_metrics(model, sampler)
-        @info "Writing hyperparameters to TensorBoard" hparams hmetrics
         if !isempty(hparams)
             TensorBoardLogger.write_hparams!(
                 lg,
                 hparams,
-                hmetrics
+                hyperparam_metrics(model, sampler)
             )
         end
     end
@@ -268,7 +270,7 @@ function (cb::TensorBoardCallback)(rng, model, sampler, transition, state, itera
     with_logger(lg) do
         for (k, val) in Iterators.filter(
             variable_filter,
-            params_and_values(transition, state; kwargs...)
+            params_and_values(model, sampler, transition, state; kwargs...)
         )
             stat = stats[k]
 
@@ -286,7 +288,7 @@ function (cb::TensorBoardCallback)(rng, model, sampler, transition, state, itera
         if cb.include_extras
             for (name, val) in Iterators.filter(
                 extras_filter,
-                extras(transition, state; kwargs...)
+                extras(model, sampler, transition, state; kwargs...)
             )
                 @info "$(cb.extras_prefix)$(name)" val
 

@@ -118,10 +118,11 @@
     end
 
     @testset "With hyperparams" begin
-        @testset "$alg" for alg in [
-            HMC(0.05, 10),
-            HMCDA(num_adapts, 0.65, 1.0),
-            NUTS(num_adapts, 0.65)
+        @testset "$alg (has hyperparam: $hashyp)" for (alg, hashyp) in [
+            (HMC(0.05, 10), true),
+            (HMCDA(num_adapts, 0.65, 1.0), true),
+            (NUTS(num_adapts, 0.65), true),
+            (MH(), false),
         ]
 
             # Create the callback
@@ -156,7 +157,7 @@
 
                 found_one && break
             end
-            @test found_one
+            @test (hashyp && found_one) || (!hashyp && !found_one)
         end
     end
 end

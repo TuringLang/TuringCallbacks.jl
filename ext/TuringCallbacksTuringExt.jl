@@ -9,22 +9,27 @@ else
     using ..TuringCallbacks: TuringCallbacks
 end
 
-const TuringTransition = Union{Turing.Inference.Transition,Turing.Inference.HMCTransition}
+const TuringTransition = Union{
+    Turing.Inference.Transition,
+    Turing.Inference.SMCTransition,
+    Turing.Inference.PGTransition
+}
 
-function TuringCallbacks.params_and_values(transition::TuringTransition; kwargs...)
-    return Iterators.map(zip(
-        Turing.Inference._params_to_array([transition])...
-    )) do (ksym, val)
-        return string(ksym), val
-    end
+function TuringCallbacks.params_and_values(
+    model::DynamicPPL.Model,
+    transition::TuringTransition;
+    kwargs...
+)
+    vns, vals = Turing.Inference._params_to_array(model, [transition])
+    return zip(Iterators.map(string, vns), vals)
 end
 
-function TuringCallbacks.extras(transition::TuringTransition; kwargs...)
-    return Iterators.map(zip(
-        Turing.Inference.get_transition_extras([transition])...
-    )) do (ksym, val)
-        return string(ksym), val
-    end
+function TuringCallbacks.extras(
+    model::DynamicPPL.Model, transition::TuringTransition;
+    kwargs...
+)
+    names, vals = Turing.Inference.get_transition_extras([transition])
+    return zip(string.(names), vec(vals))
 end
 
 default_hyperparams(sampler::DynamicPPL.Sampler) = default_hyperparams(sampler.alg)
