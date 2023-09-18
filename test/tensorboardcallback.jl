@@ -116,4 +116,46 @@
             @test !haskey(hist, Symbol("extras/acceptance_rate/val"))
         end
     end
+
+    @testset "With hyperparams" begin
+        @testset "$alg" for alg in [
+            HMC(0.05, 10),
+            HMCDA(num_adapts, 0.65, 1.0),
+            NUTS(num_adapts, 0.65)
+        ]
+
+            # Create the callback
+            callback = TensorBoardCallback(
+                joinpath(tmpdir, "runs");
+                include_hyperparams=true,
+            )
+
+            # Sample
+            chain = sample(demo_model, alg, num_samples; callback=callback)
+
+            # HACK: This touches internals so might just break at some point.
+            # If it some point does, let's just remove this test.
+            iter = TensorBoardLogger.TBEventFileCollectionIterator(
+                callback.logger.logdir, purge=true
+            )
+
+            found_one = false
+            for event_file in iter
+                for event in event_file
+                    event.what === nothing && continue
+                    !(event.what.value isa TensorBoardLogger.Summary) && continue
+
+                    for (tag, _) in event.what.value
+                        if tag == "_hparams_/experiment"
+                            found_one = true
+                            break
+                        end
+                    end
+                end
+
+                found_one && break
+            end
+            @test found_one
+        end
+    end
 end

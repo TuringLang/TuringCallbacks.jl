@@ -200,7 +200,10 @@ end
 
 Return an iterator with elements of the form `(name, value)` for hyperparameters in `model`.
 """
-hyperparams(model, sampler; kwargs...) = Pair{String, Any}[]
+function hyperparams(model, sampler; kwargs...)
+    @warn "`hyperparams(model, sampler; kwargs...)` is not implemented for $(typeof(model)) and $(typeof(sampler)). If you want to record hyperparameters, please implement this method."
+    return Pair{String, Any}[]
+end
 function hyperparams(model, sampler, transition, state; kwargs...)
     return hyperparams(model, sampler; kwargs...)
 end
@@ -213,7 +216,10 @@ Filter hyperparameters and values from a `transition` based on the `filter` of `
 function filter_hyperparams_and_value(cb::TensorBoardCallback, name, value)
     return cb.hyperparam_filter(name, value)
 end
-function filter_hyperparams_and_value(cb::TensorBoardCallback, name_and_value::Tuple)
+function filter_hyperparams_and_value(
+    cb::TensorBoardCallback,
+    name_and_value::Union{Pair,Tuple}
+)
     return filter_hyperparams_and_value(cb, name_and_value...)
 end
 
@@ -222,7 +228,10 @@ end
 
 Return a `Vector{String}` of metrics for hyperparameters in `model`.
 """
-hyperparam_metrics(model, sampler; kwargs...) = String[]
+function hyperparam_metrics(model, sampler; kwargs...)
+    @warn "`hyperparam_metrics(model, sampler; kwargs...)` is not implemented for $(typeof(model)) and $(typeof(sampler)). If you want to use some of the other recorded values as hyperparameters metrics, please implement this method."
+    return String[]
+end
 function hyperparam_metrics(model, sampler, transition, state; kwargs...)
     return hyperparam_metrics(model, sampler; kwargs...)
 end
@@ -239,16 +248,19 @@ function (cb::TensorBoardCallback)(rng, model, sampler, transition, state, itera
 
     if iteration == 1 && cb.include_hyperparams
         # If it's the first iteration, we write the hyperparameters.
-        TensorBoardLogger.write_hparams!(
-            lg,
-            Dict(
-                Iterators.filter(
-                    hyperparams_filter,
-                    hyperparams(model, sampler, transition, state; kwargs...)
-                )
-            ),
-            hyperparam_metrics(model, sampler)
-        )
+        hparams = Dict(Iterators.filter(
+            hyperparams_filter,
+            hyperparams(model, sampler, transition, state; kwargs...)
+        ))
+        hmetrics = hyperparam_metrics(model, sampler)
+        @info "Writing hyperparameters to TensorBoard" hparams hmetrics
+        if !isempty(hparams)
+            TensorBoardLogger.write_hparams!(
+                lg,
+                hparams,
+                hmetrics
+            )
+        end
     end
 
 
