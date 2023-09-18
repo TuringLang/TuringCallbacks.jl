@@ -15,6 +15,7 @@ import DataStructures: DefaultDict
 
 export TensorBoardCallback, DefaultDict, WindowStat, Thin, Skip
 
+include("utils.jl")
 include("stats.jl")
 include("tensorboardlogger.jl")
 include("callbacks/tensorboard.jl")
