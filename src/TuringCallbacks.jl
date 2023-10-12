@@ -24,6 +24,7 @@ include("stats.jl")
 include("tensorboardlogger.jl")
 include("callbacks/tensorboard.jl")
 include("callbacks/multicallback.jl")
+include("callbacks/save.jl")
 
 @static if !isdefined(Base, :get_extension)
     function __init__()
