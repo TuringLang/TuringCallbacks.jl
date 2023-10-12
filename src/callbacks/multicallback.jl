@@ -20,5 +20,4 @@ MultiCallback(callbacks...) = MultiCallback(callbacks)
 Add a callback to the list of callbacks, mutating if possible.
 """
 push!!(c::MultiCallback{<:Tuple}, callback) = MultiCallback((c.callbacks..., callback))
-push!!(c::MultiCallback{<:AbstractArray}, callback) =
-    (push!(c.callbacks, callback); return c)
+push!!(c::MultiCallback{<:AbstractArray}, callback) = (push!(c.callbacks, callback); return c)
