@@ -8,7 +8,6 @@
 
     sample(demo_model, alg, num_samples; callback = SaveCSV, chain_name="chain_1")
     chain = Matrix(CSV.read("chain_1.csv", DataFrame,  header=false))
-    println(chain)
-    @test size(chain) == (num_samples, 2)
+    @test size(Matrix(chain)) == (num_samples, 2)
     rm("chain_1.csv")
 end
