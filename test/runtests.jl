@@ -1,4 +1,6 @@
 using Test
+using CSV
+using DataFrames
 using Turing
 using TuringCallbacks
 using TensorBoardLogger, ValueHistories
@@ -26,4 +28,5 @@ const demo_model = demo(randn(100) .+ 1)
 @testset "TuringCallbacks.jl" begin
     include("multicallback.jl")
     include("tensorboardcallback.jl")
+    include("save.jl")
 end

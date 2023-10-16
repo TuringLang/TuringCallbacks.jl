@@ -2,9 +2,12 @@ module TuringCallbacks
 
 using Reexport
 
-using LinearAlgebra
+using CSV
+using Random
 using Logging
+using LinearAlgebra
 using DocStringExtensions
+import DynamicPPL: AbstractVarInfo, Model, Sampler
 
 @reexport using OnlineStats # used to compute different statistics on-the-fly
 
@@ -17,13 +20,14 @@ using DataStructures: DefaultDict
     using Requires
 end
 
-export DefaultDict, WindowStat, Thin, Skip, TensorBoardCallback, MultiCallback
+export DefaultDict, WindowStat, Thin, Skip, TensorBoardCallback, MultiCallback, SaveCSV
 
 include("utils.jl")
 include("stats.jl")
 include("tensorboardlogger.jl")
 include("callbacks/tensorboard.jl")
 include("callbacks/multicallback.jl")
+include("callbacks/save.jl")
 
 @static if !isdefined(Base, :get_extension)
     function __init__()
