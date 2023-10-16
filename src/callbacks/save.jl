@@ -29,9 +29,9 @@ function SaveCSV(
     kwargs...,
 )
     vii = deepcopy(vi)
-    invlink!!(vii, model)
+    #invlink!!(vii, model)
     θ = vii[sampler]
     # it would be good to have the param names as in the chain
     chain_name = get(kwargs, :chain_name, "chain")
-    write(string(chain_name, ".csv"), Dict("params" => [θ]); append = true, delim = ";")
+    CSV.write(string(chain_name, ".csv"), Dict("params" => [θ]), append = true, delim = ";")
 end

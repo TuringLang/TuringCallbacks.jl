@@ -1,4 +1,6 @@
 using Test
+using CSV
+using DataFrames
 using Turing
 using TuringCallbacks
 using TensorBoardLogger, ValueHistories
