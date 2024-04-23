@@ -34,7 +34,7 @@ end
 
 default_hyperparams(sampler::DynamicPPL.Sampler) = default_hyperparams(sampler.alg)
 default_hyperparams(alg::Turing.Inference.InferenceAlgorithm) = (
-    string(f) => getfield(alg, f) for f in fieldnames(typeof(alg))
+    string(f) => getfield(alg, f) for f in fieldnames(typeof(alg)) if f != :adtype
 )
 
 const AlgsWithDefaultHyperparams = Union{
