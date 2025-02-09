@@ -15,7 +15,3 @@ makedocs(;
         "Home" => "index.md",
     ],
 )
-
-deploydocs(;
-    repo="github.com/TuringLang/TuringCallbacks.jl",
-)
