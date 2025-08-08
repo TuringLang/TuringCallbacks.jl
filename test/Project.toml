@@ -1,4 +1,5 @@
 [deps]
+DynamicPPL = "366bfd00-2699-11ea-058f-f148b4cae6d8"
 TensorBoardLogger = "899adc3e-224a-11e9-021f-63837185c80f"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0"
@@ -6,6 +7,6 @@ ValueHistories = "98cad3c8-aec3-5f06-8e41-884608649ab7"
 
 [compat]
 TensorBoardLogger = "0.1.26"
+Test = "1.11.0"
 Turing = "0.39.10"
 ValueHistories = "0.5.4"
-Test = "1.11.0"

@@ -1,4 +1,5 @@
 using Test
+using DynamicPPL
 using Turing
 using TuringCallbacks
 using TensorBoardLogger, ValueHistories
