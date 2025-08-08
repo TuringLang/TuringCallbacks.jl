@@ -55,7 +55,7 @@ end
 
 function TuringCallbacks.hyperparam_metrics(
     model,
-    sampler::Turing.Sampler{<:Turing.Inference.NUTS}
+    sampler::DynamicPPL.Sampler{<:Turing.Inference.NUTS}
 )
     return [
         "extras/acceptance_rate/stat/Mean",
