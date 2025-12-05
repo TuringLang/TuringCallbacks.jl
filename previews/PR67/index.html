@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Home · TuringCallbacks.jl</title><meta name="title" content="Home · TuringCallbacks.jl"/><meta property="og:title" content="Home · TuringCallbacks.jl"/><meta property="twitter:title" content="Home · TuringCallbacks.jl"/><meta name="description" content="Documentation for TuringCallbacks.jl."/><meta property="og:description" content="Documentation for TuringCallbacks.jl."/><meta property="twitter:description" content="Documentation for TuringCallbacks.jl."/><meta property="og:url" content="https://turinglang.github.io/TuringCallbacks.jl/"/><meta property="twitter:url" content="https://turinglang.github.io/TuringCallbacks.jl/"/><link rel="canonical" href="https://turinglang.github.io/TuringCallbacks.jl/"/><script data-outdated-warner src="assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="search_index.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script></head><body>
+<!-- NAVBAR START -->
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap');
+
+    /* Documenter.jl CSS Overrides */
+    html {
+        scroll-padding-top: calc(var(--navbar-height) + 1rem);
+    }
+    .docs-sidebar, #documenter {
+        margin-top: var(--navbar-height);
+    }
+    .docs-version-selector {
+        margin-bottom: 60px !important;
+    }
+    @media screen and (max-width: 1056px) {
+        .docs-version-selector {
+            margin-bottom: 60px !important;
+        }
+        .docs-sidebar {
+            margin-top: 0 !important;
+        }
+    }
+    /* End of Documenter.jl Tweaks */
+
+    /* Color and Font Variables */
+    :root {
+        --heading-color: #6c757d;
+        --item-color: rgb(165, 165, 165);
+        --primary-bg: white;
+        --hover-color: #8faad2;
+        --deprecated-bg: #ff4d4d;
+        --deprecated-text: white;
+        --icon-color: #6c757d;
+        --shadow-color: rgba(0, 0, 0, 0.1);
+        --dropdown-hover-bg: #e9ecef;
+        
+        /* Typography */
+        --font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        --nav-link-font-size: 1.0625rem;
+        --turing-title-font-size: 21.25px;
+        --icon-font-size: 1.25rem;
+        --dropdown-arrow-font-size: 0.6875rem;
+        --badge-font-size: 0.75rem;
+
+        /* Sizing and Spacing */
+        --navbar-height: 3.75rem;
+        --logo-height: 31px;
+        --logo-width: auto;
+        --logo-padding-top: 7px;
+        --logo-margin-left: 0.8rem;
+        --title-margin-left: 0.4px;
+        --title-nav-spacing: 1.1rem;
+        --nav-item-margin-left: 1.3rem;
+        --icon-margin-left: 1rem;
+        --dropdown-padding: 1.875rem;
+        --dropdown-item-width: 12.5rem;
+        --dropdown-subitem-width: 15.625rem;
+        --dropdown-subitem-padding: 0.125rem 0.625rem;
+    }
+
+    /* Dark Theme Variable Overrides */
+    html.theme--documenter-dark {
+        --heading-color: #e0e0e0;
+        --item-color: #bdbdbd;
+        --primary-bg: #1f2424;
+        --hover-color: #ffffff;
+        --icon-color: #e0e0e0;
+        --shadow-color: rgba(255, 255, 255, 0.1);
+        --dropdown-hover-bg: #424242;
+    }
+
+    /* Catppuccin Theme Overrides */
+    html.theme--catppuccin-latte {
+        --heading-color: #4c4f69;
+        --primary-bg: #eff1f5;
+        --icon-color: #4c4f69;
+        --shadow-color: rgba(0, 0, 0, 0.1);
+        --dropdown-hover-bg: #e6e9ef;
+    }
+    html.theme--catppuccin-frappe {
+        --heading-color: #c6d0f5;
+        --primary-bg: #303446;
+        --icon-color: #c6d0f5;
+        --shadow-color: rgba(255, 255, 255, 0.1);
+        --dropdown-hover-bg: #51576d;
+    }
+    html.theme--catppuccin-macchiato {
+        --heading-color: #cad3f5;
+        --primary-bg: #24273a;
+        --icon-color: #cad3f5;
+        --shadow-color: rgba(255, 255, 255, 0.1);
+        --dropdown-hover-bg: #494d64;
+    }
+    html.theme--catppuccin-mocha {
+        --heading-color: #cad3f5;
+        --primary-bg: #1e1e2e;
+        --icon-color: #cad3f5;
+        --shadow-color: rgba(255, 255, 255, 0.1);
+        --dropdown-hover-bg: #45475a;
+    }
+
+
+    /* Main Navigation Bar */
+    .ext-navigation {
+        font-family: var(--font-family);
+        position: fixed;
+        height: var(--navbar-height);
+        top: 0;
+        width: 100%;
+        background-color: var(--primary-bg);
+        z-index: 1000;
+        box-shadow: 0 2px 4px var(--shadow-color);
+        display: flex;
+        align-items: center;
+        padding: 0 1.0625rem;
+        transition: transform 0.3s, background-color 0.3s;
+    }
+
+    nav.ext-navigation .ext-navbar-logo {
+        margin-left: var(--logo-margin-left);
+        height: auto;
+        max-height: var(--logo-height);
+        width: auto;
+        padding-top: var(--logo-padding-top);
+    }
+    
+    /* Theme-aware logo text color */
+    .ext-navbar-logo .logo-text {
+        fill: var(--heading-color);
+    }
+    
+    .ext-navbar-title {
+        color: var(--heading-color) !important;
+        font-size: var(--turing-title-font-size) !important;
+        margin-left: var(--title-margin-left);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+    
+    .ext-navbar-title:hover {
+        color: var(--hover-color) !important;
+    }
+
+    .ext-nav-links {
+        display: flex;
+        align-items: center;
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        flex-grow: 1;
+        margin-left: var(--title-nav-spacing);
+    }
+
+    .ext-nav-links li:first-child {
+        margin-left: 0 !important;
+    }
+
+    .ext-nav-links li {
+        margin-left: var(--nav-item-margin-left) !important;
+    }
+
+    .ext-nav-link {
+        color: var(--heading-color) !important;
+        text-decoration: none;
+        font-size: var(--nav-link-font-size) !important;
+        transition: color 0.2s ease;
+        cursor: pointer;
+    }
+
+    .ext-nav-link:hover,
+    .ext-navbar-item-single a:hover,
+    .ext-navbar-icons a:hover {
+        color: var(--hover-color) !important;
+    }
+
+    .ext-navbar-item-single a {
+        color: var(--heading-color) !important;
+    }
+    
+    .ext-navbar-icons {
+        display: flex;
+        align-items: center;
+    }
+
+    .ext-navbar-icons a {
+        color: var(--icon-color) !important;
+        font-size: var(--icon-font-size) !important;
+        transition: color 0.2s ease;
+        margin-left: var(--icon-margin-left);
+    }
+
+    .ext-menu-toggle {
+        display: none;
+        font-size: 1.5rem;
+        color: var(--heading-color);
+        cursor: pointer;
+    }
+
+    .ext-dropdown {
+        display: none;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        padding: var(--dropdown-padding);
+        position: absolute;
+        top: var(--navbar-height);
+        width: 100%;
+        left: 0;
+        background-color: var(--primary-bg);
+        line-height: 1.875rem;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out, background-color 0.3s;
+        transform: translateY(-0.625rem);
+        box-shadow: 0 4px 6px var(--shadow-color);
+    }
+
+    #library-handler::after {
+        content: "▼";
+        font-size: var(--dropdown-arrow-font-size);
+        margin-left: 0.3125rem;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    #library-handler.open::after {
+        content: "▲";
+    }
+
+    .ext-dropdown.show {
+        display: grid;
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .ext-dropdown ul {
+        width: var(--dropdown-item-width);
+        margin-bottom: 1.25rem;
+    }
+
+    .ext-dropdown ul li {
+        text-align: left;
+        display: flex;
+        align-items: center;
+    }
+
+    .ext-dropdown ul a li {
+        color: var(--item-color);
+        width: var(--dropdown-subitem-width);
+        border-radius: 3px;
+        padding: var(--dropdown-subitem-padding);
+        transition: background-color 0.2s ease;
+    }
+
+    .ext-dropdown ul a li:hover {
+        background-color: var(--dropdown-hover-bg);
+    }
+
+    .ext-dropdown-item-heading {
+        color: var(--heading-color);
+        text-align: center;
+    }
+
+    .deprecated-badge {
+        background-color: var(--deprecated-bg);
+        color: var(--deprecated-text);
+        font-size: var(--badge-font-size);
+        padding: .1rem;
+        border-radius: 3px;
+        margin-left: 0.5rem;
+        line-height: 1;
+    }
+
+    @media (max-width: 966px) {
+        .ext-dropdown {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .ext-nav-links {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            background-color: var(--primary-bg);
+            position: absolute;
+            top: var(--navbar-height);
+            left: 0;
+            padding: 0.625rem 0;
+            height: auto;
+            overflow-y: auto;
+            box-shadow: 0 4px 6px var(--shadow-color);
+            margin-left: 0;
+        }
+
+        .ext-nav-links.show {
+            display: flex;
+        }
+
+        .ext-nav-links li {
+            margin: 0.625rem 0 !important;
+            text-align: center;
+        }
+        
+        .ext-menu-toggle {
+            display: block;
+            margin-left: auto;
+        }
+
+        .ext-navigation.hide {
+            transform: translateY(calc(-1 * var(--navbar-height)));
+        }
+
+        .ext-dropdown {
+            position: static;
+            display: block;
+            opacity: 1;
+            transform: none;
+            box-shadow: none;
+            grid-template-columns: 1fr;
+            padding: 0.625rem;
+            text-align: center;
+        }
+
+        .ext-dropdown ul {
+            width: auto;
+            display: inline-block;
+            margin: 0 auto 0.3125rem;
+            text-align: left;
+        }
+    }
+</style>
+<nav class="ext-navigation">
+    <a href="https://turinglang.org/">
+        <svg width="4333" height="1145" viewBox="0 0 4333 1145" fill="none" xmlns="http://www.w3.org/2000/svg" class="ext-navbar-logo">
+            <path class="logo-text" d="M0.44603 193.181V66.9868H663.471V193.181H406.62V898H257.297V193.181H0.44603ZM1097.24 635.874V274.74H1244.13V898H1101.7V787.225H1095.21C1081.14 822.121 1058.01 850.66 1025.82 872.842C993.902 895.024 954.542 906.115 907.744 906.115C866.896 906.115 830.783 897.053 799.403 878.929C768.295 860.534 743.948 833.889 726.365 798.993C708.782 763.826 699.99 721.356 699.99 671.581V274.74H846.878V648.858C846.878 688.353 857.699 719.733 879.34 742.997C900.981 766.261 929.385 777.893 964.551 777.893C986.192 777.893 1007.16 772.618 1027.45 762.068C1047.73 751.518 1064.37 735.828 1077.35 714.999C1090.61 693.899 1097.24 667.524 1097.24 635.874ZM1395.17 898V274.74H1537.6V378.617H1544.09C1555.45 342.639 1574.93 314.911 1602.52 295.434C1630.38 275.687 1662.17 265.813 1697.88 265.813C1705.99 265.813 1715.05 266.219 1725.06 267.031C1735.34 267.572 1743.86 268.518 1750.63 269.871V404.992C1744.4 402.828 1734.53 400.934 1721 399.311C1707.75 397.417 1694.9 396.471 1682.46 396.471C1655.68 396.471 1631.6 402.287 1610.23 413.919C1589.13 425.28 1572.49 441.105 1560.32 461.393C1548.15 481.682 1542.06 505.081 1542.06 531.591V898H1395.17ZM1848.21 898V274.74H1995.1V898H1848.21ZM1922.06 186.283C1898.8 186.283 1878.78 178.573 1862.01 163.154C1845.24 147.464 1836.85 128.664 1836.85 106.752C1836.85 84.5701 1845.24 65.7695 1862.01 50.3503C1878.78 34.6606 1898.8 26.8158 1922.06 26.8158C1945.6 26.8158 1965.61 34.6606 1982.12 50.3503C1998.89 65.7695 2007.27 84.5701 2007.27 106.752C2007.27 128.664 1998.89 147.464 1982.12 163.154C1965.61 178.573 1945.6 186.283 1922.06 186.283ZM2293.04 532.809V898H2146.15V274.74H2286.54V380.646H2293.85C2308.18 345.75 2331.04 318.022 2362.42 297.463C2394.07 276.904 2433.16 266.625 2479.69 266.625C2522.7 266.625 2560.17 275.822 2592.09 294.217C2624.28 312.612 2649.17 339.257 2666.75 374.153C2684.6 409.049 2693.39 451.385 2693.12 501.159V898H2546.24V523.882C2546.24 482.223 2535.41 449.626 2513.77 426.092C2492.4 402.557 2462.78 390.79 2424.91 390.79C2399.21 390.79 2376.35 396.471 2356.34 407.832C2336.59 418.923 2321.03 435.019 2309.67 456.119C2298.58 477.218 2293.04 502.782 2293.04 532.809ZM3113.5 1144.71C3060.75 1144.71 3015.44 1137.54 2977.57 1123.2C2939.7 1109.13 2909.26 1090.2 2886.27 1066.39C2863.28 1042.59 2847.32 1016.21 2838.39 987.269L2970.67 955.213C2976.62 967.386 2985.28 979.424 2996.64 991.327C3008 1003.5 3023.28 1013.51 3042.49 1021.35C3061.97 1029.47 3086.45 1033.53 3115.93 1033.53C3157.59 1033.53 3192.08 1023.38 3219.4 1003.09C3246.73 983.076 3260.39 950.074 3260.39 904.087V786.008H3253.08C3245.51 801.157 3234.42 816.711 3219.81 832.671C3205.47 848.632 3186.4 862.022 3162.6 872.842C3139.06 883.663 3109.44 889.073 3073.73 889.073C3025.85 889.073 2982.44 877.847 2943.48 855.394C2904.8 832.671 2873.96 798.857 2850.97 753.952C2828.24 708.777 2816.88 652.24 2816.88 584.341C2816.88 515.902 2828.24 458.147 2850.97 411.078C2873.96 363.739 2904.93 327.896 2943.89 303.55C2982.84 278.933 3026.26 266.625 3074.14 266.625C3110.66 266.625 3140.69 272.847 3164.22 285.29C3188.03 297.463 3206.96 312.206 3221.03 329.519C3235.09 346.561 3245.78 362.657 3253.08 377.805H3261.2V274.74H3406.06V908.144C3406.06 961.435 3393.34 1005.53 3367.92 1040.42C3342.49 1075.32 3307.73 1101.43 3263.63 1118.74C3219.54 1136.05 3169.5 1144.71 3113.5 1144.71ZM3114.72 773.835C3145.83 773.835 3172.34 766.261 3194.25 751.112C3216.16 735.963 3232.79 714.187 3244.16 685.783C3255.52 657.379 3261.2 623.295 3261.2 583.53C3261.2 544.305 3255.52 509.95 3244.16 480.465C3233.07 450.979 3216.56 428.12 3194.65 411.89C3173.01 395.389 3146.37 387.138 3114.72 387.138C3081.98 387.138 3054.66 395.659 3032.75 412.701C3010.84 429.744 2994.34 453.143 2983.25 482.899C2972.16 512.385 2966.61 545.929 2966.61 583.53C2966.61 621.672 2972.16 655.08 2983.25 683.754C2994.61 712.158 3011.25 734.34 3033.16 750.3C3055.34 765.99 3082.53 773.835 3114.72 773.835ZM3647.08 906.927C3622.47 906.927 3601.37 898.271 3583.78 880.958C3566.2 863.645 3557.54 842.545 3557.82 817.658C3557.54 793.312 3566.2 772.482 3583.78 755.17C3601.37 737.857 3622.47 729.2 3647.08 729.2C3670.89 729.2 3691.58 737.857 3709.17 755.17C3727.02 772.482 3736.08 793.312 3736.35 817.658C3736.08 834.159 3731.75 849.173 3723.37 862.698C3715.25 876.224 3704.43 887.044 3690.91 895.16C3677.65 903.004 3663.04 906.927 3647.08 906.927ZM3888.01 274.74H4034.9V933.708C4034.9 978.613 4026.38 1015.67 4009.33 1044.89C3992.29 1074.1 3967.67 1095.88 3935.48 1110.22C3903.29 1124.55 3864.2 1131.72 3818.22 1131.72C3812.81 1131.72 3807.8 1131.59 3803.2 1131.32C3798.6 1131.32 3793.6 1131.18 3788.19 1130.91V1011.21C3792.25 1011.48 3795.9 1011.62 3799.15 1011.62C3802.39 1011.89 3805.77 1012.02 3809.29 1012.02C3837.42 1012.02 3857.58 1005.12 3869.75 991.327C3881.92 977.801 3888.01 957.918 3888.01 931.679V274.74ZM3961.05 186.283C3937.51 186.283 3917.36 178.573 3900.59 163.154C3884.09 147.464 3875.84 128.664 3875.84 106.752C3875.84 84.5701 3884.09 65.7695 3900.59 50.3503C3917.36 34.6606 3937.51 26.8158 3961.05 26.8158C3984.31 26.8158 4004.19 34.6606 4020.7 50.3503C4037.47 65.7695 4045.85 84.5701 4045.85 106.752C4045.85 128.664 4037.47 147.464 4020.7 163.154C4004.19 178.573 3984.31 186.283 3961.05 186.283ZM4332.83 66.9868V898H4185.94V66.9868H4332.83Z" fill="currentColor"/>
+            <path d="M4076 108.5C4076 168.424 4027.42 217 3967.5 217C3907.58 217 3859 168.424 3859 108.5C3859 48.5762 3907.58 0 3967.5 0C4027.42 0 4076 48.5762 4076 108.5Z" fill="#389725"/>
+            <path d="M3755 814.5C3755 874.424 3706.42 923 3646.5 923C3586.58 923 3538 874.424 3538 814.5C3538 754.576 3586.58 706 3646.5 706C3706.42 706 3755 754.576 3755 814.5Z" fill="#9457B1"/>
+            <path d="M2030 108.5C2030 168.424 1981.42 217 1921.5 217C1861.58 217 1813 168.424 1813 108.5C1813 48.5762 1861.58 0 1921.5 0C1981.42 0 2030 48.5762 2030 108.5Z" fill="#CA3B33"/>
+        </svg>
+    </a>
+    <!-- <a class="ext-navbar-title" href="https://turinglang.org/">Turing.jl</a> -->
+    
+    <ul class="ext-nav-links">
+        <li><a class="ext-nav-link" href="https://turinglang.org/docs/getting-started/">Get Started</a></li>
+        <li><a class="ext-nav-link" href="https://turinglang.org/docs/tutorials/">Tutorials</a></li>
+        <li><a class="ext-nav-link" href="https://turinglang.org/docs/faq/">FAQ</a></li>
+        <li>
+            <p class="ext-nav-link" id="library-handler">Libraries</p>
+            <div class="ext-dropdown" id="ext-dropdown-items">
+                <ul>
+                    <li class="ext-dropdown-item-heading">Modelling Languages</li>
+                    <a href="https://turinglang.org/DynamicPPL.jl/"><li>DynamicPPL</li></a>
+                    <a href="https://turinglang.org/JuliaBUGS.jl/"><li>JuliaBUGS</li></a>
+                    <a href="https://turinglang.org/TuringGLM.jl/"><li>TuringGLM</li></a>
+                </ul>
+                <ul>
+                    <li class="ext-dropdown-item-heading">MCMC</li>
+                    <a href="https://turinglang.org/AdvancedHMC.jl/"><li>AdvancedHMC</li></a>
+                    <a href="https://turinglang.org/AbstractMCMC.jl/"><li>AbstractMCMC</li></a>
+                    <a href="https://github.com/theogf/ThermodynamicIntegration.jl"><li>ThermodynamicIntegration</li></a>
+                    <a href="https://turinglang.org/AdvancedPS.jl/"><li>AdvancedPS</li></a>
+                    <a href="https://turinglang.org/SliceSampling.jl/"><li>SliceSampling</li></a>
+                    <a href="https://turinglang.org/EllipticalSliceSampling.jl/"><li>EllipticalSliceSampling</li></a>
+                </ul>
+                <ul>
+                    <li class="ext-dropdown-item-heading">Diagnostics</li>
+                    <a href="https://turinglang.org/MCMCChains.jl/"><li>MCMCChains</li></a>
+                    <a href="https://turinglang.org/MCMCDiagnosticTools.jl/"><li>MCMCDiagnosticTools</li></a>
+                    <a href="https://turinglang.org/ParetoSmooth.jl/"><li>ParetoSmooth</li></a>
+                </ul>
+                <ul>
+                    <li class="ext-dropdown-item-heading">Gaussian Processes</li>
+                    <a href="https://juliagaussianprocesses.github.io/AbstractGPs.jl/"><li>AbstractGPs</li></a>
+                    <a href="https://juliagaussianprocesses.github.io/KernelFunctions.jl/"><li>KernelFunctions</li></a>
+                    <a href="https://juliagaussianprocesses.github.io/ApproximateGPs.jl/"><li>ApproximateGPs</li></a>
+                </ul>
+                <ul><li class="ext-dropdown-item-heading ext-navbar-item-single"><a href="https://turinglang.org/Bijectors.jl/">Bijectors</a></li></ul>
+                <ul><li class="ext-dropdown-item-heading ext-navbar-item-single"><a href="https://turinglang.org/TuringCallbacks.jl/">TuringCallbacks</a></li></ul>
+                <ul><li class="ext-dropdown-item-heading ext-navbar-item-single"><a href="https://turinglang.org/Deprecated/TuringBenchmarking/">TuringBenchmarking</a><span class="deprecated-badge">Deprecated</span></li></ul>
+            </div>
+        </li>
+        <li><a class="ext-nav-link" href="https://turinglang.org/news/">News</a></li>
+        <li><a class="ext-nav-link" href="https://turinglang.org/team/">Team</a></li>
+    </ul>
+
+    <div class="ext-navbar-icons">
+        <a href="https://x.com/TuringLang" aria-label="Turing on X"><i class="fa-brands fa-x-twitter"></i></a>
+        <a href="https://discourse.julialang.org/c/domain/probprog/48" aria-label="Turing on Discourse"><i class="fa-brands fa-discourse"></i></a>
+        <a href="https://julialang.slack.com/archives/CCYDC34A0" aria-label="Turing on Slack"><i class="fa-brands fa-slack"></i></a>
+        <a href="https://github.com/TuringLang/" aria-label="Turing.jl on GitHub"><i class="fa-brands fa-github"></i></a>
+    </div>
+
+    <span class="ext-menu-toggle"><i class="fa-solid fa-bars"></i></span>
+</nav>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const menuToggle = document.querySelector(".ext-menu-toggle");
+        const navLinks = document.querySelector(".ext-nav-links");
+        const nav = document.querySelector(".ext-navigation");
+        const libraryHandler = document.getElementById("library-handler");
+        const dropdownContainer = document.getElementById("ext-dropdown-items");
+        let lastScrollY = window.scrollY;
+
+        function closeDropdown() {
+            if (dropdownContainer.classList.contains("show")) {
+                libraryHandler.classList.remove("open");
+                dropdownContainer.classList.remove("show");
+                setTimeout(() => {
+                    if (!dropdownContainer.classList.contains("show")) {
+                        dropdownContainer.style.display = "none";
+                    }
+                }, 300);
+            }
+        }
+
+        function openDropdown() {
+            dropdownContainer.style.display = "grid";
+            libraryHandler.classList.add("open");
+            setTimeout(() => {
+                dropdownContainer.classList.add("show");
+            }, 10);
+        }
+
+        function setAppropriateHeight() {
+            if (window.innerWidth <= 768) {
+                const viewportHeight = window.innerHeight;
+                const navHeight = nav.offsetHeight;
+                navLinks.style.maxHeight = `${viewportHeight - navHeight}px`;
+                navLinks.style.overflowY = "auto";
+            } else {
+                navLinks.style.maxHeight = "";
+                navLinks.style.overflowY = "";
+            }
+        }
+
+        menuToggle.addEventListener("click", (event) => {
+            event.stopPropagation();
+            navLinks.classList.toggle("show");
+            if (navLinks.classList.contains("show")) {
+                setAppropriateHeight();
+                closeDropdown();
+                dropdownContainer.style.display = "none";
+            }
+        });
+
+        libraryHandler.addEventListener("click", (event) => {
+            event.stopPropagation();
+            event.preventDefault();
+            if (dropdownContainer.classList.contains("show")) {
+                closeDropdown();
+            } else {
+                openDropdown();
+            }
+            setAppropriateHeight();
+        });
+
+        // Close all menus if a click is registered outside the navigation bar.
+        document.addEventListener("click", (event) => {
+            if (!nav.contains(event.target)) {
+                navLinks.classList.remove("show");
+                closeDropdown();
+            }
+        });
+
+        // Hide navigation bar on scroll down in mobile view.
+        window.addEventListener("scroll", () => {
+            if (window.innerWidth <= 768) {
+                if (window.scrollY > lastScrollY && window.scrollY > nav.offsetHeight){
+                    nav.classList.add("hide");
+                } else {
+                    nav.classList.remove("hide");
+                }
+                lastScrollY = window.scrollY;
+            }
+        });
+
+        window.addEventListener("resize", setAppropriateHeight);
+    });
+</script>
+<!-- NAVBAR END -->
+
+
+<div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href>TuringCallbacks.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li class="is-active"><a class="tocitem" href>Home</a><ul class="internal"><li><a class="tocitem" href="#Getting-started"><span>Getting started</span></a></li><li><a class="tocitem" href="#Visualizing-sampling-on-the-fly"><span>Visualizing sampling on-the-fly</span></a></li><li><a class="tocitem" href="#Supporting-TensorBoardCallback-with-your-own-sampler"><span>Supporting <code>TensorBoardCallback</code> with your own sampler</span></a></li><li><a class="tocitem" href="#Types-and-Functions"><span>Types &amp; Functions</span></a></li><li><a class="tocitem" href="#Internals"><span>Internals</span></a></li><li><a class="tocitem" href="#Index"><span>Index</span></a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Home</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Home</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/TuringLang/TuringCallbacks.jl/blob/main/docs/src/index.md#L" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="TuringCallbacks"><a class="docs-heading-anchor" href="#TuringCallbacks">TuringCallbacks</a><a id="TuringCallbacks-1"></a><a class="docs-heading-anchor-permalink" href="#TuringCallbacks" title="Permalink"></a></h1><ul><li><a href="#TuringCallbacks">TuringCallbacks</a></li><li class="no-marker"><ul><li><a href="#Getting-started">Getting started</a></li><li><a href="#Visualizing-sampling-on-the-fly">Visualizing sampling on-the-fly</a></li><li><a href="#Supporting-TensorBoardCallback-with-your-own-sampler">Supporting <code>TensorBoardCallback</code> with your own sampler</a></li><li><a href="#Types-and-Functions">Types &amp; Functions</a></li><li><a href="#Internals">Internals</a></li><li><a href="#Index">Index</a></li></ul></li></ul><h2 id="Getting-started"><a class="docs-heading-anchor" href="#Getting-started">Getting started</a><a id="Getting-started-1"></a><a class="docs-heading-anchor-permalink" href="#Getting-started" title="Permalink"></a></h2><p>As the package is not yet officially released, the package has to be added from the GitHub repository:</p><pre><code class="language-julia hljs">julia&gt; ]
+pkg&gt; add TuringCallbacks.jl</code></pre><h2 id="Visualizing-sampling-on-the-fly"><a class="docs-heading-anchor" href="#Visualizing-sampling-on-the-fly">Visualizing sampling on-the-fly</a><a id="Visualizing-sampling-on-the-fly-1"></a><a class="docs-heading-anchor-permalink" href="#Visualizing-sampling-on-the-fly" title="Permalink"></a></h2><p><code>TensorBoardCallback</code> is a wrapper around <code>Base.CoreLogging.AbstractLogger</code> which can be used to create a <code>callback</code> compatible with <code>Turing.sample</code>.</p><p>To actually visualize the results of the logging, you need to have installed <code>tensorboard</code> in Python. If you do not have <code>tensorboard</code> installed, it should hopefully be sufficient to just run</p><pre><code class="language-sh hljs">pip3 install tensorboard</code></pre><p>Then you can start up the <code>TensorBoard</code>:</p><pre><code class="language-sh hljs">python3 -m tensorboard.main --logdir tensorboard_logs/run</code></pre><p>Now we&#39;re ready to actually write some Julia code.</p><p>The following snippet demonstrates the usage of <code>TensorBoardCallback</code> on a simple model. This will write a set of statistics at each iteration to an event-file compatible with Tensorboard:</p><pre><code class="language-julia hljs">using Turing, TuringCallbacks
+
+@model function demo(x)
+    s ~ InverseGamma(2, 3)
+    m ~ Normal(0, √s)
+    for i in eachindex(x)
+        x[i] ~ Normal(m, √s)
+    end
+end
+
+xs = randn(100) .+ 1;
+model = demo(xs);
+
+# Number of MCMC samples/steps
+num_samples = 10_000
+num_adapts = 100
+
+# Sampling algorithm to use
+alg = NUTS(num_adapts, 0.65)
+
+# Create the callback
+callback = TensorBoardCallback(&quot;tensorboard_logs/run&quot;)
+
+# Sample
+chain = sample(model, alg, num_samples; callback = callback)</code></pre><p>While this is sampling, you can head right over to <code>localhost:6006</code> in your web browser and you should be seeing some plots!</p><p><img src="assets/tensorboard_demo_initial_screen.png" alt="TensorBoard dashboard"/></p><p>In particular, note the &quot;Distributions&quot; tab in the above picture. Clicking this, you should see something similar to:</p><p><img src="assets/tensorboard_demo_distributions_screen.png" alt="TensorBoard dashboard"/></p><p>And finally, the &quot;Histogram&quot; tab shows a slightly more visually pleasing version of the marginal distributions:</p><p><img src="assets/tensorboard_demo_histograms_screen.png" alt="TensorBoard dashboard"/></p><p>Note that the names of the stats following a naming <code>$variable_name/...</code> where <code>$variable_name</code> refers to name of the variable in the model.</p><h3 id="Choosing-what-and-how-you-log"><a class="docs-heading-anchor" href="#Choosing-what-and-how-you-log">Choosing what and how you log</a><a id="Choosing-what-and-how-you-log-1"></a><a class="docs-heading-anchor-permalink" href="#Choosing-what-and-how-you-log" title="Permalink"></a></h3><h4 id="Statistics"><a class="docs-heading-anchor" href="#Statistics">Statistics</a><a id="Statistics-1"></a><a class="docs-heading-anchor-permalink" href="#Statistics" title="Permalink"></a></h4><p>In the above example we didn&#39;t provide any statistics explicit and so it used the default statistics, e.g. <code>Mean</code> and <code>Variance</code>. But using other statistics is easy! Here&#39;s a much more interesting example:</p><pre><code class="language-julia hljs"># Create the stats (estimators are sub-types of `OnlineStats.OnlineStat`)
+stats = Skip(
+    num_adapts, # Consider adaptation steps
+    Series(
+        # Estimators using the entire chain
+        Series(Mean(), Variance(), AutoCov(10), KHist(100)),
+        # Estimators using the entire chain but only every 10-th sample
+        Thin(10, Series(Mean(), Variance(), AutoCov(10), KHist(100))),
+        # Estimators using only the last 1000 samples
+        WindowStat(1000, Series(Mean(), Variance(), AutoCov(10), KHist(100)))
+    )
+)
+# Create the callback
+callback = TensorBoardCallback(&quot;tensorboard_logs/run&quot;, stats)
+
+# Sample
+chain = sample(model, alg, num_samples; callback = callback)</code></pre><p>Tada! Now you should be seeing waaaay more interesting statistics in your TensorBoard dashboard. See the <a href="https://joshday.github.io/OnlineStats.jl/latest/"><code>OnlineStats.jl</code> documentation</a> for more on the different statistics, with the exception of <a href="#TuringCallbacks.Thin"><code>Thin</code></a>, <a href="#TuringCallbacks.Skip"><code>Skip</code></a> and <a href="#TuringCallbacks.WindowStat"><code>WindowStat</code></a> which are implemented in this package.</p><p>Note that these statistic estimators are stateful, and therefore the following is <em>bad</em>:</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; s = AutoCov(5)</code><code class="nohighlight hljs ansi" style="display:block;">AutoCov: n=0 | value=[NaN, NaN, NaN, NaN, NaN, NaN]</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; stat = Series(s, s)</code><code class="nohighlight hljs ansi" style="display:block;">Series
+├─ AutoCov: n=0 | value=[NaN, NaN, NaN, NaN, NaN, NaN]
+└─ AutoCov: n=0 | value=[NaN, NaN, NaN, NaN, NaN, NaN]</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; # =&gt; 10 samples but `n=20` since we&#39;ve called `fit!` twice for each observation
+       fit!(stat, randn(10))</code><code class="nohighlight hljs ansi" style="display:block;">Series
+├─ AutoCov: n=20 | value=[1.26202, 0.442556, -0.376913, -0.285409, -0.193906, -0.0895573]
+└─ AutoCov: n=20 | value=[1.26202, 0.442556, -0.376913, -0.285409, -0.193906, -0.0895573]</code></pre><p>while the following is <em>good</em>:</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; stat = Series(AutoCov(5), AutoCov(5))</code><code class="nohighlight hljs ansi" style="display:block;">Series
+├─ AutoCov: n=0 | value=[NaN, NaN, NaN, NaN, NaN, NaN]
+└─ AutoCov: n=0 | value=[NaN, NaN, NaN, NaN, NaN, NaN]</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; # =&gt; 10 samples AND `n=10`; great!
+       fit!(stat, randn(10))</code><code class="nohighlight hljs ansi" style="display:block;">Series
+├─ AutoCov: n=10 | value=[2.31806, -0.76456, -0.646905, 0.868742, -0.78326, 0.305511]
+└─ AutoCov: n=10 | value=[2.31806, -0.76456, -0.646905, 0.868742, -0.78326, 0.305511]</code></pre><p>Since at the moment the only support statistics are sub-types of <code>OnlineStats.OnlineStat</code>. If you want to log some custom statistic, again, at the moment, you have to make a sub-type and implement <code>OnlineStats.fit!</code> and <code>OnlineStats.value</code>. By default, a <code>OnlineStat</code> is passed to <code>tensorboard</code> by simply calling <code>OnlineStat.value(stat)</code>. Therefore, if you also want to customize how a stat is passed to <code>tensorbord</code>, you need to overload <code>TensorBoardLogger.preprocess(name, stat, data)</code> accordingly.</p><h4 id="Filter-variables-to-log"><a class="docs-heading-anchor" href="#Filter-variables-to-log">Filter variables to log</a><a id="Filter-variables-to-log-1"></a><a class="docs-heading-anchor-permalink" href="#Filter-variables-to-log" title="Permalink"></a></h4><p>Maybe you want to only log stats for certain variables, e.g. in the above example we might want to exclude <code>m</code> <em>and</em> exclude the sampler statistics:</p><pre><code class="language-julia hljs">callback = TensorBoardCallback(
+    &quot;tensorboard_logs/run&quot;, stats;
+    exclude = [&quot;m&quot;, ], include_extras = false
+)</code></pre><p>Or you can create the filter (a mapping <code>variable_name -&gt; ::Bool</code>) yourself:</p><pre><code class="language-julia hljs">var_filter(varname, value) = varname != &quot;m&quot;
+callback = TensorBoardCallback(
+    &quot;tensorboard_logs/run&quot;, stats;
+    filter = var_filter
+)</code></pre><h2 id="Supporting-TensorBoardCallback-with-your-own-sampler"><a class="docs-heading-anchor" href="#Supporting-TensorBoardCallback-with-your-own-sampler">Supporting <code>TensorBoardCallback</code> with your own sampler</a><a id="Supporting-TensorBoardCallback-with-your-own-sampler-1"></a><a class="docs-heading-anchor-permalink" href="#Supporting-TensorBoardCallback-with-your-own-sampler" title="Permalink"></a></h2><p>It&#39;s also possible to make your own sampler compatible with <code>TensorBoardCallback</code>.</p><p>To do so, you need to implement the following method:</p><article><details class="docstring" open="true"><summary id="TuringCallbacks.params_and_values"><a class="docstring-binding" href="#TuringCallbacks.params_and_values"><code>TuringCallbacks.params_and_values</code></a> — <span class="docstring-category">Function</span></summary><section><div><pre><code class="language-julia hljs">params_and_values(model, transition[, state]; kwargs...)
+params_and_values(model, sampler, transition, state; kwargs...)</code></pre><p>Return an iterator over parameter names and values from a <code>transition</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/TuringLang/TuringCallbacks.jl/blob/99e1ab8542b94f52d47f11d1aaaf95d2e08cf0cd/src/callbacks/tensorboard.jl#LL176-L181">source</a></section></details></article><p>If you don&#39;t have any particular names for your parameters, you&#39;re free to make use of the convenience method</p><article><details class="docstring" open="true"><summary id="TuringCallbacks.default_param_names_for_values"><a class="docstring-binding" href="#TuringCallbacks.default_param_names_for_values"><code>TuringCallbacks.default_param_names_for_values</code></a> — <span class="docstring-category">Function</span></summary><section><div><pre><code class="language-julia hljs">default_param_names_for_values(x)</code></pre><p>Return an iterator of <code>θ[i]</code> for each element in <code>x</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/TuringLang/TuringCallbacks.jl/blob/99e1ab8542b94f52d47f11d1aaaf95d2e08cf0cd/src/callbacks/tensorboard.jl#LL168-L172">source</a></section></details></article><div class="admonition is-info" id="Note-af809bc1f863360"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-af809bc1f863360" title="Permalink"></a></header><div class="admonition-body"><p>The <code>params_and_values(model, sampler, transition, state; kwargs...)</code> is not usually overloaded, but it can sometimes be useful for defining more complex behaviors.</p></div></div><p>For example, if the <code>transition</code> for your <code>MySampler</code> is just a <code>Vector{Float64}</code>, a basic implementation of <a href="#TuringCallbacks.params_and_values"><code>TuringCallbacks.params_and_values</code></a> would just be</p><pre><code class="language-julia hljs">function TuringCallbacks.params_and_values(transition::Vectorr{Float64}; kwargs...)
+    param_names = TuringCallbacks.default_param_names_for_values(transition)
+    return zip(param_names, transition)
+end</code></pre><p>Or sometimes the user might pass the parameter names in as a keyword argument, and so you might want to support that with something like</p><pre><code class="language-julia hljs">function TuringCallbacks.params_and_values(transition::Vectorr{Float64}; param_names = nothing, kwargs...)
+    param_names = isnothing(param_names) ? TuringCallbacks.default_param_names_for_values(transition) : param_names
+    return zip(param_names, transition)
+end</code></pre><p>Finally, if you in addition want to log &quot;extra&quot; information, e.g. some sampler statistics you&#39;re keeping track of, you also need to implement</p><article><details class="docstring" open="true"><summary id="TuringCallbacks.extras"><a class="docstring-binding" href="#TuringCallbacks.extras"><code>TuringCallbacks.extras</code></a> — <span class="docstring-category">Function</span></summary><section><div><pre><code class="language-julia hljs">extras(model, transition[, state]; kwargs...)
+extras(model, sampler, transition, state; kwargs...)</code></pre><p>Return an iterator with elements of the form <code>(name, value)</code> for additional statistics in <code>transition</code>.</p><p>Default implementation returns an empty iterator.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/TuringLang/TuringCallbacks.jl/blob/99e1ab8542b94f52d47f11d1aaaf95d2e08cf0cd/src/callbacks/tensorboard.jl#LL189-L196">source</a></section></details></article><h2 id="Types-and-Functions"><a class="docs-heading-anchor" href="#Types-and-Functions">Types &amp; Functions</a><a id="Types-and-Functions-1"></a><a class="docs-heading-anchor-permalink" href="#Types-and-Functions" title="Permalink"></a></h2><article><details class="docstring" open="true"><summary id="TuringCallbacks.MultiCallback"><a class="docstring-binding" href="#TuringCallbacks.MultiCallback"><code>TuringCallbacks.MultiCallback</code></a> — <span class="docstring-category">Type</span></summary><section><div><pre><code class="language-julia hljs">MultiCallback</code></pre><p>A callback that combines multiple callbacks into one.</p><p>Implements <a href="#TuringCallbacks.push!!-Tuple{MultiCallback{&lt;:Tuple}, Any}"><code>push!!</code></a> to add callbacks to the list.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/TuringLang/TuringCallbacks.jl/blob/99e1ab8542b94f52d47f11d1aaaf95d2e08cf0cd/src/callbacks/multicallback.jl#LL1-L7">source</a></section></details></article><article><details class="docstring" open="true"><summary id="TuringCallbacks.Skip"><a class="docstring-binding" href="#TuringCallbacks.Skip"><code>TuringCallbacks.Skip</code></a> — <span class="docstring-category">Type</span></summary><section><div><pre><code class="language-julia hljs">mutable struct Skip{T, O&lt;:OnlineStat{T}} &lt;: OnlineStat{T}</code></pre><p><strong>Usage</strong></p><pre><code class="language-julia hljs">Skip(b::Int, stat::OnlineStat)</code></pre><p>Skips the first <code>b</code> observations before passing them on to <code>stat</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/TuringLang/TuringCallbacks.jl/blob/99e1ab8542b94f52d47f11d1aaaf95d2e08cf0cd/src/stats.jl#LL4">source</a></section></details></article><article><details class="docstring" open="true"><summary id="TuringCallbacks.TensorBoardCallback"><a class="docstring-binding" href="#TuringCallbacks.TensorBoardCallback"><code>TuringCallbacks.TensorBoardCallback</code></a> — <span class="docstring-category">Type</span></summary><section><div><pre><code class="language-julia hljs">struct TensorBoardCallback{L, F1, F2, F3}</code></pre><p>Wraps a <code>CoreLogging.AbstractLogger</code> to construct a callback to be passed to <code>AbstractMCMC.step</code>.</p><p><strong>Usage</strong></p><pre><code class="language-julia hljs">TensorBoardCallback(; kwargs...)
+TensorBoardCallback(directory::string[, stats]; kwargs...)
+TensorBoardCallback(lg::AbstractLogger[, stats]; kwargs...)</code></pre><p>Constructs an instance of a <code>TensorBoardCallback</code>, creating a <code>TBLogger</code> if <code>directory</code> is provided instead of <code>lg</code>.</p><p><strong>Arguments</strong></p><ul><li><code>lg</code>: an instance of an <code>AbstractLogger</code> which implements <code>TuringCallbacks.increment_step!</code>.</li><li><code>stats = nothing</code>: <code>OnlineStat</code> or lookup for variable name to statistic estimator. If <code>stats isa OnlineStat</code>, we will create a <code>DefaultDict</code> which copies <code>stats</code> for unseen variable names. If <code>isnothing</code>, then a <code>DefaultDict</code> with a default constructor returning a <code>OnlineStats.Series</code> estimator with <code>Mean()</code>, <code>Variance()</code>, and <code>KHist(num_bins)</code> will be used.</li></ul><p><strong>Keyword arguments</strong></p><ul><li><code>num_bins::Int = 100</code>: Number of bins to use in the histograms.</li><li><code>filter = nothing</code>: Filter determining whether or not we should log stats for a particular variable and value; expected signature is <code>filter(varname, value)</code>. If <code>isnothing</code> a default-filter constructed from <code>exclude</code> and <code>include</code> will be used.</li><li><code>exclude = String[]</code>: If non-empty, these variables will not be logged.</li><li><code>include = String[]</code>: If non-empty, only these variables will be logged.</li><li><code>include_extras::Bool = true</code>: Include extra statistics from transitions.</li><li><code>extras_include = String[]</code>: If non-empty, only these extra statistics will be logged.</li><li><code>extras_exclude = String[]</code>: If non-empty, these extra statistics will not be logged.</li><li><code>extras_filter = nothing</code>: Filter determining whether or not we should log  extra statistics; expected signature is <code>filter(extra, value)</code>.  If <code>isnothing</code> a default-filter constructed from <code>extras_exclude</code> and  <code>extras_include</code> will be used.</li><li><code>include_hyperparams::Bool = true</code>: Include hyperparameters.</li><li><code>hyperparam_include = String[]</code>: If non-empty, only these hyperparameters will be logged.</li><li><code>hyperparam_exclude = String[]</code>: If non-empty, these hyperparameters will not be logged.</li><li><code>hyperparam_filter = nothing</code>: Filter determining whether or not we should log  hyperparameters; expected signature is <code>filter(hyperparam, value)</code>.  If <code>isnothing</code> a default-filter constructed from <code>hyperparam_exclude</code> and  <code>hyperparam_include</code> will be used.</li><li><code>directory::String = nothing</code>: if specified, will together with <code>comment</code> be used to  define the logging directory.</li><li><code>comment::String = nothing</code>: if specified, will together with <code>directory</code> be used to  define the logging directory.</li></ul><p><strong>Fields</strong></p><ul><li><p><code>logger::Base.CoreLogging.AbstractLogger</code>: Underlying logger.</p></li><li><p><code>stats::Any</code>: Lookup for variable name to statistic estimate.</p></li><li><p><code>variable_filter::Any</code>: Filter determining whether to include stats for a particular variable.</p></li><li><p><code>include_extras::Bool</code>: Include extra statistics from transitions.</p></li><li><p><code>extras_filter::Any</code>: Filter determining whether to include a particular extra statistic.</p></li><li><p><code>include_hyperparams::Bool</code>: Include hyperparameters.</p></li><li><p><code>hyperparam_filter::Any</code>: Filter determining whether to include a particular hyperparameter.</p></li><li><p><code>param_prefix::String</code>: Prefix used for logging realizations/parameters</p></li><li><p><code>extras_prefix::String</code>: Prefix used for logging extra statistics</p></li></ul></div><a class="docs-sourcelink" target="_blank" href="https://github.com/TuringLang/TuringCallbacks.jl/blob/99e1ab8542b94f52d47f11d1aaaf95d2e08cf0cd/src/callbacks/tensorboard.jl#LL3-L56">source</a></section></details></article><article><details class="docstring" open="true"><summary id="TuringCallbacks.Thin"><a class="docstring-binding" href="#TuringCallbacks.Thin"><code>TuringCallbacks.Thin</code></a> — <span class="docstring-category">Type</span></summary><section><div><pre><code class="language-julia hljs">mutable struct Thin{T, O&lt;:OnlineStat{T}} &lt;: OnlineStat{T}</code></pre><p><strong>Usage</strong></p><pre><code class="language-julia hljs">Thin(b::Int, stat::OnlineStat)</code></pre><p>Thins <code>stat</code> with an interval <code>b</code>, i.e. only passes every b-th observation to <code>stat</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/TuringLang/TuringCallbacks.jl/blob/99e1ab8542b94f52d47f11d1aaaf95d2e08cf0cd/src/stats.jl#LL37">source</a></section></details></article><article><details class="docstring" open="true"><summary id="TuringCallbacks.WindowStat"><a class="docstring-binding" href="#TuringCallbacks.WindowStat"><code>TuringCallbacks.WindowStat</code></a> — <span class="docstring-category">Type</span></summary><section><div><pre><code class="language-julia hljs">struct WindowStat{T, O} &lt;: OnlineStat{T}</code></pre><p><strong>Usage</strong></p><pre><code class="language-julia hljs">WindowStat(b::Int, stat::O) where {O &lt;: OnlineStat}</code></pre><p>&quot;Wraps&quot; <code>stat</code> in a <code>MovingWindow</code> of length <code>b</code>.</p><p><code>value(o::WindowStat)</code> will then return an <code>OnlineStat</code> of the same type as  <code>stat</code>, which is <em>only</em> fitted on the batched data contained in the <code>MovingWindow</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/TuringLang/TuringCallbacks.jl/blob/99e1ab8542b94f52d47f11d1aaaf95d2e08cf0cd/src/stats.jl#LL70">source</a></section></details></article><h2 id="Internals"><a class="docs-heading-anchor" href="#Internals">Internals</a><a id="Internals-1"></a><a class="docs-heading-anchor-permalink" href="#Internals" title="Permalink"></a></h2><article><details class="docstring" open="true"><summary id="TuringCallbacks.default_param_names_for_values-Tuple{Any}"><a class="docstring-binding" href="#TuringCallbacks.default_param_names_for_values-Tuple{Any}"><code>TuringCallbacks.default_param_names_for_values</code></a> — <span class="docstring-category">Method</span></summary><section><div><pre><code class="language-julia hljs">default_param_names_for_values(x)</code></pre><p>Return an iterator of <code>θ[i]</code> for each element in <code>x</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/TuringLang/TuringCallbacks.jl/blob/99e1ab8542b94f52d47f11d1aaaf95d2e08cf0cd/src/callbacks/tensorboard.jl#LL168-L172">source</a></section></details></article><article><details class="docstring" open="true"><summary id="TuringCallbacks.extras-Tuple{Any, Any}"><a class="docstring-binding" href="#TuringCallbacks.extras-Tuple{Any, Any}"><code>TuringCallbacks.extras</code></a> — <span class="docstring-category">Method</span></summary><section><div><pre><code class="language-julia hljs">extras(model, transition[, state]; kwargs...)
+extras(model, sampler, transition, state; kwargs...)</code></pre><p>Return an iterator with elements of the form <code>(name, value)</code> for additional statistics in <code>transition</code>.</p><p>Default implementation returns an empty iterator.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/TuringLang/TuringCallbacks.jl/blob/99e1ab8542b94f52d47f11d1aaaf95d2e08cf0cd/src/callbacks/tensorboard.jl#LL189-L196">source</a></section></details></article><article><details class="docstring" open="true"><summary id="TuringCallbacks.filter_extras_and_value-Tuple{TensorBoardCallback, Any, Any}"><a class="docstring-binding" href="#TuringCallbacks.filter_extras_and_value-Tuple{TensorBoardCallback, Any, Any}"><code>TuringCallbacks.filter_extras_and_value</code></a> — <span class="docstring-category">Method</span></summary><section><div><pre><code class="language-julia hljs">filter_extras_and_value(cb::TensorBoardCallback, name, value)</code></pre><p>Filter extras and values from a <code>transition</code> based on the <code>filter</code> of <code>cb</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/TuringLang/TuringCallbacks.jl/blob/99e1ab8542b94f52d47f11d1aaaf95d2e08cf0cd/src/callbacks/tensorboard.jl#LL203-L207">source</a></section></details></article><article><details class="docstring" open="true"><summary id="TuringCallbacks.filter_hyperparams_and_value-Tuple{TensorBoardCallback, Any, Any}"><a class="docstring-binding" href="#TuringCallbacks.filter_hyperparams_and_value-Tuple{TensorBoardCallback, Any, Any}"><code>TuringCallbacks.filter_hyperparams_and_value</code></a> — <span class="docstring-category">Method</span></summary><section><div><pre><code class="language-julia hljs">filter_hyperparams_and_value(cb::TensorBoardCallback, name, value)</code></pre><p>Filter hyperparameters and values from a <code>transition</code> based on the <code>filter</code> of <code>cb</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/TuringLang/TuringCallbacks.jl/blob/99e1ab8542b94f52d47f11d1aaaf95d2e08cf0cd/src/callbacks/tensorboard.jl#LL228-L232">source</a></section></details></article><article><details class="docstring" open="true"><summary id="TuringCallbacks.filter_param_and_value-Tuple{TensorBoardCallback, Any, Any}"><a class="docstring-binding" href="#TuringCallbacks.filter_param_and_value-Tuple{TensorBoardCallback, Any, Any}"><code>TuringCallbacks.filter_param_and_value</code></a> — <span class="docstring-category">Method</span></summary><section><div><pre><code class="language-julia hljs">filter_param_and_value(cb::TensorBoardCallback, param_name, value)</code></pre><p>Filter parameters and values from a <code>transition</code> based on the <code>filter</code> of <code>cb</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/TuringLang/TuringCallbacks.jl/blob/99e1ab8542b94f52d47f11d1aaaf95d2e08cf0cd/src/callbacks/tensorboard.jl#LL156-L160">source</a></section></details></article><article><details class="docstring" open="true"><summary id="TuringCallbacks.hyperparam_metrics-Tuple{Any, Any}"><a class="docstring-binding" href="#TuringCallbacks.hyperparam_metrics-Tuple{Any, Any}"><code>TuringCallbacks.hyperparam_metrics</code></a> — <span class="docstring-category">Method</span></summary><section><div><pre><code class="language-julia hljs">hyperparam_metrics(model, sampler[, transition, state]; kwargs...)</code></pre><p>Return a <code>Vector{String}</code> of metrics for hyperparameters in <code>model</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/TuringLang/TuringCallbacks.jl/blob/99e1ab8542b94f52d47f11d1aaaf95d2e08cf0cd/src/callbacks/tensorboard.jl#LL243-L247">source</a></section></details></article><article><details class="docstring" open="true"><summary id="TuringCallbacks.hyperparams-Tuple{Any, Any}"><a class="docstring-binding" href="#TuringCallbacks.hyperparams-Tuple{Any, Any}"><code>TuringCallbacks.hyperparams</code></a> — <span class="docstring-category">Method</span></summary><section><div><pre><code class="language-julia hljs">hyperparams(model, sampler[, transition, state]; kwargs...)</code></pre><p>Return an iterator with elements of the form <code>(name, value)</code> for hyperparameters in <code>model</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/TuringLang/TuringCallbacks.jl/blob/99e1ab8542b94f52d47f11d1aaaf95d2e08cf0cd/src/callbacks/tensorboard.jl#LL215-L219">source</a></section></details></article><article><details class="docstring" open="true"><summary id="TuringCallbacks.params_and_values-Tuple{Any, Any, Any}"><a class="docstring-binding" href="#TuringCallbacks.params_and_values-Tuple{Any, Any, Any}"><code>TuringCallbacks.params_and_values</code></a> — <span class="docstring-category">Method</span></summary><section><div><pre><code class="language-julia hljs">params_and_values(model, transition[, state]; kwargs...)
+params_and_values(model, sampler, transition, state; kwargs...)</code></pre><p>Return an iterator over parameter names and values from a <code>transition</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/TuringLang/TuringCallbacks.jl/blob/99e1ab8542b94f52d47f11d1aaaf95d2e08cf0cd/src/callbacks/tensorboard.jl#LL176-L181">source</a></section></details></article><article><details class="docstring" open="true"><summary id="TuringCallbacks.push!!-Tuple{MultiCallback{&lt;:Tuple}, Any}"><a class="docstring-binding" href="#TuringCallbacks.push!!-Tuple{MultiCallback{&lt;:Tuple}, Any}"><code>TuringCallbacks.push!!</code></a> — <span class="docstring-category">Method</span></summary><section><div><pre><code class="language-julia hljs">push!!(cb::MultiCallback, callback)</code></pre><p>Add a callback to the list of callbacks, mutating if possible.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/TuringLang/TuringCallbacks.jl/blob/99e1ab8542b94f52d47f11d1aaaf95d2e08cf0cd/src/callbacks/multicallback.jl#LL17-L21">source</a></section></details></article><article><details class="docstring" open="true"><summary id="TuringCallbacks.tb_name-Tuple{Any}"><a class="docstring-binding" href="#TuringCallbacks.tb_name-Tuple{Any}"><code>TuringCallbacks.tb_name</code></a> — <span class="docstring-category">Method</span></summary><section><div><pre><code class="language-julia hljs">tb_name(args...)</code></pre><p>Returns a <code>string</code> representing the name for <code>arg</code> or <code>args</code> in TensorBoard.</p><p>If <code>length(args) &gt; 1</code>, <code>args</code> are joined together by <code>&quot;/&quot;</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/TuringLang/TuringCallbacks.jl/blob/99e1ab8542b94f52d47f11d1aaaf95d2e08cf0cd/src/tensorboardlogger.jl#LL5-L11">source</a></section></details></article><h2 id="Index"><a class="docs-heading-anchor" href="#Index">Index</a><a id="Index-1"></a><a class="docs-heading-anchor-permalink" href="#Index" title="Permalink"></a></h2><ul><li><a href="#TuringCallbacks.MultiCallback"><code>TuringCallbacks.MultiCallback</code></a></li><li><a href="#TuringCallbacks.Skip"><code>TuringCallbacks.Skip</code></a></li><li><a href="#TuringCallbacks.TensorBoardCallback"><code>TuringCallbacks.TensorBoardCallback</code></a></li><li><a href="#TuringCallbacks.Thin"><code>TuringCallbacks.Thin</code></a></li><li><a href="#TuringCallbacks.WindowStat"><code>TuringCallbacks.WindowStat</code></a></li><li><a href="#TuringCallbacks.default_param_names_for_values"><code>TuringCallbacks.default_param_names_for_values</code></a></li><li><a href="#TuringCallbacks.default_param_names_for_values-Tuple{Any}"><code>TuringCallbacks.default_param_names_for_values</code></a></li><li><a href="#TuringCallbacks.extras"><code>TuringCallbacks.extras</code></a></li><li><a href="#TuringCallbacks.extras-Tuple{Any, Any}"><code>TuringCallbacks.extras</code></a></li><li><a href="#TuringCallbacks.filter_extras_and_value-Tuple{TensorBoardCallback, Any, Any}"><code>TuringCallbacks.filter_extras_and_value</code></a></li><li><a href="#TuringCallbacks.filter_hyperparams_and_value-Tuple{TensorBoardCallback, Any, Any}"><code>TuringCallbacks.filter_hyperparams_and_value</code></a></li><li><a href="#TuringCallbacks.filter_param_and_value-Tuple{TensorBoardCallback, Any, Any}"><code>TuringCallbacks.filter_param_and_value</code></a></li><li><a href="#TuringCallbacks.hyperparam_metrics-Tuple{Any, Any}"><code>TuringCallbacks.hyperparam_metrics</code></a></li><li><a href="#TuringCallbacks.hyperparams-Tuple{Any, Any}"><code>TuringCallbacks.hyperparams</code></a></li><li><a href="#TuringCallbacks.params_and_values-Tuple{Any, Any, Any}"><code>TuringCallbacks.params_and_values</code></a></li><li><a href="#TuringCallbacks.params_and_values"><code>TuringCallbacks.params_and_values</code></a></li><li><a href="#TuringCallbacks.push!!-Tuple{MultiCallback{&lt;:Tuple}, Any}"><code>TuringCallbacks.push!!</code></a></li><li><a href="#TuringCallbacks.tb_name-Tuple{Any}"><code>TuringCallbacks.tb_name</code></a></li></ul></article><nav class="docs-footer"><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Friday 5 December 2025 00:41">Friday 5 December 2025</span>. Using Julia version 1.12.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
