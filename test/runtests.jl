@@ -27,4 +27,11 @@ const demo_model = demo(randn(100) .+ 1)
 @testset "TuringCallbacks.jl" begin
     include("multicallback.jl")
     include("tensorboardcallback.jl")
+    
+    # Run JuliaBUGS tests in a separate process to avoid Turing conflicts
+    @testset "JuliaBUGS Extension (subprocess)" begin
+        test_file = joinpath(@__DIR__, "juliabugscallback.jl")
+        result = run(`$(Base.julia_cmd()) --project=$(dirname(@__DIR__)) --startup-file=no $test_file`)
+        @test success(result)
+    end
 end

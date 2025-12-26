@@ -1,5 +1,10 @@
 [deps]
+AbstractMCMC = "80f14c24-f653-4e6a-9b94-39d6b0f70001"
+AdvancedHMC = "0bf59076-c3b1-5ca4-86bd-e02cd72cde3d"
 DynamicPPL = "366bfd00-2699-11ea-058f-f148b4cae6d8"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+JuliaBUGS = "ba9fb4c0-828e-4473-b6a1-cd2560fee5bf"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 TensorBoardLogger = "899adc3e-224a-11e9-021f-63837185c80f"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0"
