@@ -25,37 +25,34 @@ handling both scalar and vector parameters correctly.
 function TuringCallbacks.params_and_values(
     model::AbstractMCMC.LogDensityModel{<:BUGSModel},
     transition::AdvancedHMC.Transition;
-    kwargs...
+    kwargs...,
 )
     bugs_model = model.logdensity
     gd = bugs_model.graph_evaluation_data
     param_names = gd.sorted_parameters
     param_values = transition.z.θ
-    
-    # Build pairs of (name, value) by mapping the flattened vector back to parameters
-    pairs = Tuple{String, Float64}[]
+
+    pairs = Tuple{String,Float64}[]
     pos = 1
-    
+
     for vn in param_names
         len = if bugs_model.transformed
             bugs_model.transformed_var_lengths[vn]
         else
             bugs_model.untransformed_var_lengths[vn]
         end
-        
+
         if len == 1
-            # Scalar parameter
             push!(pairs, (string(vn), param_values[pos]))
             pos += 1
         else
-            # Vector/array parameter - log each element individually
-            for i in 1:len
+            for i = 1:len
                 push!(pairs, (string(vn) * "[$i]", param_values[pos]))
                 pos += 1
             end
         end
     end
-    
+
     return pairs
 end
 
@@ -70,17 +67,17 @@ step size, tree depth, etc.
 function TuringCallbacks.extras(
     model::AbstractMCMC.LogDensityModel{<:BUGSModel},
     transition::AdvancedHMC.Transition;
-    kwargs...
+    kwargs...,
 )
     # Extract HMC statistics from transition
     stats = AdvancedHMC.stat(transition)
     names = collect(keys(stats))
     vals = collect(values(stats))
-    
+
     # Add log probability at the front
     pushfirst!(names, :lp)
     pushfirst!(vals, transition.z.ℓπ.value)
-    
+
     return zip(string.(names), vals)
 end
 
@@ -92,12 +89,12 @@ Extract hyperparameters from a NUTS sampler used with JuliaBUGS models.
 function TuringCallbacks.hyperparams(
     model::AbstractMCMC.LogDensityModel{<:BUGSModel},
     sampler::AdvancedHMC.NUTS;
-    kwargs...
+    kwargs...,
 )
     return [
         "target_acceptance" => sampler.δ,
         "max_depth" => sampler.max_depth,
-        "Δ_max" => sampler.Δ_max
+        "Δ_max" => sampler.Δ_max,
     ]
 end
 
@@ -108,14 +105,14 @@ Return metric names to track for NUTS hyperparameters with JuliaBUGS models.
 """
 function TuringCallbacks.hyperparam_metrics(
     model::AbstractMCMC.LogDensityModel{<:BUGSModel},
-    sampler::AdvancedHMC.NUTS
+    sampler::AdvancedHMC.NUTS,
 )
     return [
         "extras/acceptance_rate/stat/Mean",
         "extras/max_hamiltonian_energy_error/stat/Mean",
         "extras/lp/stat/Mean",
         "extras/n_steps/stat/Mean",
-        "extras/tree_depth/stat/Mean"
+        "extras/tree_depth/stat/Mean",
     ]
 end
 
