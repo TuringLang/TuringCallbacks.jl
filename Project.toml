@@ -15,9 +15,13 @@ Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 TensorBoardLogger = "899adc3e-224a-11e9-021f-63837185c80f"
 
 [weakdeps]
+AbstractMCMC = "80f14c24-f653-4e6a-9b94-39d6b0f70001"
+AdvancedHMC = "0bf59076-c3b1-5ca4-86bd-e02cd72cde3d"
+JuliaBUGS = "ba9fb4c0-828e-4473-b6a1-cd2560fee5bf"
 Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0"
 
 [extensions]
+TuringCallbacksJuliaBUGSExt = ["JuliaBUGS", "AdvancedHMC", "AbstractMCMC"]
 TuringCallbacksTuringExt = "Turing"
 
 [compat]
