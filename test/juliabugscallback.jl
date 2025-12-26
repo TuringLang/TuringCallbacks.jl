@@ -9,46 +9,53 @@ using ForwardDiff
 
 @testset "JuliaBUGS Extension" begin
     tmpdir = mktempdir()
-    mkpath(tmpdir)
 
-    # Define a simple BUGS model
-    model_def = @bugs("""
-    model {
-        for (i in 1:N) {
-            y[i] ~ dnorm(mu, tau)
+    try
+        # Define a simple BUGS model
+        model_def = @bugs("""
+        model {
+            for (i in 1:N) {
+                y[i] ~ dnorm(mu, tau)
+            }
+            mu ~ dnorm(0, 0.001)
+            tau ~ dgamma(0.001, 0.001)
+            sigma <- 1 / sqrt(tau)
         }
-        mu ~ dnorm(0, 0.001)
-        tau ~ dgamma(0.001, 0.001)
-        sigma <- 1 / sqrt(tau)
-    }
-    """, true, false)
+        """, true, false)
 
-    data = (N = 10, y = [1.0, 2.0, 3.0, 2.5, 2.8, 3.2, 2.9, 3.1, 2.6, 2.7])
-    
-    inits = (mu = 0.0, tau = 1.0)
-    
-    bugs_model = compile(model_def, data, inits)
-    
-    logdensity_model = AbstractMCMC.LogDensityModel(bugs_model)
-
-    num_samples = 100
-
-    sampler = NUTS(0.65)
-
-    @testset "Correctness of values" begin
-        callback = TensorBoardCallback(joinpath(tmpdir, "runs"))
-
-        rng = Random.MersenneTwister(42)
-        chain = AbstractMCMC.sample(rng, logdensity_model, sampler, num_samples; callback=callback)
-
-        hist = convert(MVHistory, callback.logger)
-
-        @test haskey(hist, Symbol("mu/val"))
-        @test haskey(hist, Symbol("tau/val"))
+        data = (N = 10, y = [1.0, 2.0, 3.0, 2.5, 2.8, 3.2, 2.9, 3.1, 2.6, 2.7])
         
-        @test haskey(hist, Symbol("mu/stat/Mean"))
-        @test haskey(hist, Symbol("tau/stat/Mean"))
-    end
+        inits = (mu = 0.0, tau = 1.0)
+        
+        bugs_model = compile(model_def, data, inits)
+        
+        logdensity_model = AbstractMCMC.LogDensityModel(bugs_model)
+
+        num_samples = 100
+
+        sampler = NUTS(0.65)
+
+        @testset "Correctness of values" begin
+            callback = TensorBoardCallback(joinpath(tmpdir, "runs"))
+
+            rng = Random.MersenneTwister(42)
+            chain = AbstractMCMC.sample(rng, logdensity_model, sampler, num_samples; callback=callback)
+
+            hist = convert(MVHistory, callback.logger)
+
+            @test haskey(hist, Symbol("mu/val"))
+            @test haskey(hist, Symbol("tau/val"))
+            @test haskey(hist, Symbol("mu/stat/Mean"))
+            @test haskey(hist, Symbol("tau/stat/Mean"))
+            
+            mu_mean = last(last(hist["mu/stat/Mean"]))
+            tau_mean = last(last(hist["tau/stat/Mean"]))
+            
+            @test mu_mean isa Real
+            @test tau_mean isa Real
+            @test !isnan(mu_mean) && !isinf(mu_mean)
+            @test !isnan(tau_mean) && !isinf(tau_mean)
+        end
 
     @testset "Default logging" begin
         callback = TensorBoardCallback(joinpath(tmpdir, "runs"))
@@ -152,5 +159,12 @@ using ForwardDiff
             found_one && break
         end
         @test found_one
+    end
+    finally
+        try
+            rm(tmpdir; recursive=true, force=true)
+        catch e
+            @warn "Failed to clean up temp directory" tmpdir exception=e
+        end
     end
 end

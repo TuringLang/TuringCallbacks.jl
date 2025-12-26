@@ -1,17 +1,17 @@
 module TuringCallbacksJuliaBUGSExt
 
 if isdefined(Base, :get_extension)
-    import JuliaBUGS
-    import JuliaBUGS.Model: BUGSModel
-    import TuringCallbacks
-    import AbstractMCMC
-    import AdvancedHMC
+    using JuliaBUGS
+    using JuliaBUGS.Model: BUGSModel
+    using TuringCallbacks
+    using AbstractMCMC
+    using AdvancedHMC
 else
-    import ..JuliaBUGS
-    import ..JuliaBUGS.Model: BUGSModel
-    import ..TuringCallbacks
-    import ..AbstractMCMC
-    import ..AdvancedHMC
+    using ..JuliaBUGS
+    using ..JuliaBUGS.Model: BUGSModel
+    using ..TuringCallbacks
+    using ..AbstractMCMC
+    using ..AdvancedHMC
 end
 
 """
@@ -28,8 +28,8 @@ function TuringCallbacks.params_and_values(
     kwargs...,
 )
     bugs_model = model.logdensity
-    gd = bugs_model.graph_evaluation_data
-    param_names = gd.sorted_parameters
+    graph_evaluation_data = bugs_model.graph_evaluation_data
+    param_names = graph_evaluation_data.sorted_parameters
     param_values = transition.z.θ
 
     pairs = Tuple{String,Float64}[]
@@ -46,7 +46,7 @@ function TuringCallbacks.params_and_values(
             push!(pairs, (string(vn), param_values[pos]))
             pos += 1
         else
-            for i = 1:len
+            for i in 1:len
                 push!(pairs, (string(vn) * "[$i]", param_values[pos]))
                 pos += 1
             end
